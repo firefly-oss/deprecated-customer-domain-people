@@ -56,3 +56,91 @@ Or run the `CustomerDomainPeopleApplication` class.
 ## Notes
 - Only CQ (queries) is implemented with mock data for reads; registration is mocked via in-memory client.
 - The structure is ready to be extended with additional commands and/or full CQRS if required.
+
+## Ejemplos JSON (RegisterCustomerCommand: party + naturalPerson + legalPerson)
+A continuación se muestran bloques JSON de ejemplo para invocar el endpoint POST /api/v1/customers con el record RegisterCustomerCommand, incluyendo los módulos RegisterPartyCommand (party), RegisterNaturalPersonCommand (naturalPerson) y RegisterLegalPersonCommand (legalPerson).
+
+Notas:
+- Formato de fecha: usar "YYYY-MM-DD" (LocalDate) para dateOfBirth y dateOfIncorporation.
+- Enums: party.partyType debe coincidir con los valores del SDK (por ejemplo, "NATURAL_PERSON" o "LEGAL_PERSON").
+- Nulos/omisión: cualquier módulo/campo puede omitirse si no aplica. Aquí se incluyen los tres para propósitos de prueba.
+- Tipos numéricos: shareCapital es numérico (BigDecimal), numberOfEmployees es entero.
+
+Ejemplo completo:
+```json
+{
+  "party": {
+    "partyType": "NATURAL_PERSON",
+    "preferredLanguage": "es",
+    "recordSource": "WEB"
+  },
+  "naturalPerson": {
+    "partyId": null,
+    "firstName": "Juan",
+    "middleName": "Carlos",
+    "firstSurname": "Pérez",
+    "secondSurname": "García",
+    "dateOfBirth": "1990-05-15",
+    "placeOfBirth": "Madrid",
+    "gender": "MALE",
+    "maritalStatus": "SINGLE",
+    "taxIdentificationNumber": "12345678Z",
+    "residencyStatus": "RESIDENT",
+    "titleId": 1,
+    "nationalityId": 34,
+    "countryOfResidenceId": 34,
+    "avatarUrl": "https://example.com/avatar.jpg"
+  },
+  "legalPerson": {
+    "partyId": null,
+    "legalName": "Acme S.A.",
+    "tradeName": "Acme",
+    "registrationNumber": "RM-123456",
+    "taxIdentificationNumber": "B12345678",
+    "legalFormId": 10,
+    "dateOfIncorporation": "2010-03-12",
+    "businessActivity": "Fabricación de dispositivos",
+    "numberOfEmployees": 250,
+    "shareCapital": 1000000.00,
+    "websiteUrl": "https://acme.example.com",
+    "incorporationCountry": "ES",
+    "phoneNumber": "+34 900 123 456",
+    "emailAddress": "contacto@acme.example.com",
+    "mainContactName": "María Rodríguez",
+    "mainContactTitle": "Directora General",
+    "logoUrl": "https://acme.example.com/logo.png"
+  }
+}
+```
+
+Ejemplo mínimo (valores básicos):
+```json
+{
+  "party": {
+    "partyType": "NATURAL_PERSON",
+    "preferredLanguage": "es",
+    "recordSource": "WEB"
+  },
+  "naturalPerson": {
+    "firstName": "Ana",
+    "firstSurname": "López",
+    "dateOfBirth": "1985-10-01"
+  },
+  "legalPerson": {
+    "legalName": "Ejemplo S.L.",
+    "dateOfIncorporation": "2015-06-01"
+  }
+}
+```
+
+Ejemplo de llamada (PowerShell):
+```powershell
+curl -Method Post `
+  -Uri "http://localhost:8080/api/v1/customers" `
+  -ContentType "application/json" `
+  -Body '{
+    "party": {"partyType": "NATURAL_PERSON", "preferredLanguage": "es", "recordSource": "WEB"},
+    "naturalPerson": {"firstName": "Ana", "firstSurname": "López", "dateOfBirth": "1985-10-01"},
+    "legalPerson": {"legalName": "Ejemplo S.L.", "dateOfIncorporation": "2015-06-01"}
+  }'
+```

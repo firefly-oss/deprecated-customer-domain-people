@@ -1,12 +1,15 @@
 package com.catalis.domain.people.core.integration.client.impl;
 
+import com.catalis.common.customer.sdk.api.LegalPersonApi;
 import com.catalis.common.customer.sdk.api.NaturalPersonApi;
 import com.catalis.common.customer.sdk.api.PartyApi;
 import com.catalis.common.customer.sdk.invoker.ApiClient;
+import com.catalis.common.customer.sdk.model.LegalPersonDTO;
 import com.catalis.common.customer.sdk.model.NaturalPersonDTO;
 import com.catalis.common.customer.sdk.model.PartyDTO;
 import com.catalis.domain.people.core.integration.client.CustomersClient;
 import com.catalis.domain.people.core.integration.mapper.CustomersMapper;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +25,14 @@ public class CustomersClientImpl implements CustomersClient {
 
     private final PartyApi partyApi;
     private final NaturalPersonApi naturalPersonApi;
+    private final LegalPersonApi legalPersonApi;
     private final CustomersMapper customersMapper;
 
     @Autowired
     public CustomersClientImpl(ApiClient apiClient, CustomersMapper customersMapper) {
         this.partyApi = new PartyApi(apiClient);
         this.naturalPersonApi = new NaturalPersonApi(apiClient);
+        this.legalPersonApi = new LegalPersonApi(apiClient);
         this.customersMapper = customersMapper;
     }
 
@@ -53,6 +58,18 @@ public class CustomersClientImpl implements CustomersClient {
     @Override
     public Mono<ResponseEntity<Void>> deleteNaturalPerson(Long id) {
         return naturalPersonApi.deleteNaturalPersonWithHttpInfo(id);
+    }
+
+    @Override
+    public Mono<ResponseEntity<LegalPersonDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand registerLegalPersonCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return legalPersonApi.createLegalPersonWithHttpInfo(partyId,
+                customersMapper.toLegalPersonDTO(registerLegalPersonCommand), xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteLegalPerson(Long id) {
+        return legalPersonApi.deleteLegalPersonWithHttpInfo(id);
     }
 
 }

@@ -25,6 +25,7 @@ public class PersonCommandServiceImpl implements PersonCommandService {
         StepInputs inputs = StepInputs.builder()
                 .forStepId("registerParty", command.party())
                 .forStepId("registerNaturalPerson", command.naturalPerson())
+                .forStepId("registerLegalPerson", command.legalPerson())
                 .build();
 
         return engine.execute("RegisterCustomerSaga", inputs);

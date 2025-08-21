@@ -2,6 +2,7 @@ package com.catalis.domain.people.core.orchestrator;
 
 import com.catalis.domain.people.core.integration.client.CustomersClient;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterCustomerCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
 import com.catalis.transactionalengine.annotations.FromStep;
@@ -42,6 +43,9 @@ public class RegisterCustomerOrchestrator {
 
     @SagaStep(id = "registerNaturalPerson", compensate = "removeNaturalPerson", dependsOn = "registerParty")
     public Mono<Long> registerNaturalPerson(RegisterNaturalPersonCommand cmd, SagaContext ctx, @FromStep("registerParty") Long partyId) {
+        if (cmd == null) {
+            return Mono.empty();
+        }
         return customersClient
                 .createNaturalPerson(partyId, cmd)
                 .mapNotNull(partyDTOResponseEntity ->
@@ -50,6 +54,21 @@ public class RegisterCustomerOrchestrator {
 
     public Mono<Void> removeNaturalPerson(Long naturalPersonId, SagaContext ctx) {
         return customersClient.deleteNaturalPerson(naturalPersonId).mapNotNull(HttpEntity::getBody);
+    }
+
+    @SagaStep(id = "registerLegalPerson", compensate = "removeLegalPerson", dependsOn = "registerParty")
+    public Mono<Long> registerLegalPerson(RegisterLegalPersonCommand cmd, SagaContext ctx, @FromStep("registerParty") Long partyId) {
+        if (cmd == null) {
+            return Mono.empty();
+        }
+        return customersClient
+                .createLegalPerson(partyId, cmd)
+                .mapNotNull(legalPersonDTOResponseEntity ->
+                        Objects.requireNonNull(Objects.requireNonNull(legalPersonDTOResponseEntity.getBody()).getLegalPersonId()));
+    }
+
+    public Mono<Void> removeLegalPerson(Long legalPersonId, SagaContext ctx) {
+        return customersClient.deleteLegalPerson(legalPersonId).mapNotNull(HttpEntity::getBody);
     }
 
 

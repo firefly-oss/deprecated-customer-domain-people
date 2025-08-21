@@ -2,8 +2,10 @@ package com.catalis.domain.people.core.integration.mapper;
 
 import com.catalis.common.customer.sdk.model.PartyDTO;
 import com.catalis.common.customer.sdk.model.NaturalPersonDTO;
+import com.catalis.common.customer.sdk.model.LegalPersonDTO;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -20,6 +22,8 @@ public interface CustomersMapper {
     @Mapping(target = "maritalStatus", source = "maritalStatus", qualifiedByName = "mapMaritalStatus")
     @Mapping(target = "residencyStatus", source = "residencyStatus", qualifiedByName = "mapResidencyStatus")
     NaturalPersonDTO toNaturalPersonDTO(RegisterNaturalPersonCommand command);
+
+    LegalPersonDTO toLegalPersonDTO(RegisterLegalPersonCommand command);
 
     @Named("mapPartyType")
     default PartyDTO.PartyTypeEnum mapPartyType(String partyType) {
