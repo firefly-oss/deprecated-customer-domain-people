@@ -57,13 +57,14 @@ Or run the `CustomerDomainPeopleApplication` class.
 - Only CQ (queries) is implemented with mock data for reads; registration is mocked via in-memory client.
 - The structure is ready to be extended with additional commands and/or full CQRS if required.
 
-## Ejemplos JSON (RegisterCustomerCommand: party + naturalPerson + legalPerson)
-A continuación se muestran bloques JSON de ejemplo para invocar el endpoint POST /api/v1/customers con el record RegisterCustomerCommand, incluyendo los módulos RegisterPartyCommand (party), RegisterNaturalPersonCommand (naturalPerson) y RegisterLegalPersonCommand (legalPerson).
+## Ejemplos JSON (RegisterCustomerCommand: party + naturalPerson + legalPerson + statusHistory)
+A continuación se muestran bloques JSON de ejemplo para invocar el endpoint POST /api/v1/customers con el record RegisterCustomerCommand, incluyendo los módulos RegisterPartyCommand (party), RegisterNaturalPersonCommand (naturalPerson), RegisterLegalPersonCommand (legalPerson) y RegisterPartyStatusEntryCommand (statusHistory).
 
 Notas:
 - Formato de fecha: usar "YYYY-MM-DD" (LocalDate) para dateOfBirth y dateOfIncorporation.
-- Enums: party.partyType debe coincidir con los valores del SDK (por ejemplo, "NATURAL_PERSON" o "LEGAL_PERSON").
-- Nulos/omisión: cualquier módulo/campo puede omitirse si no aplica. Aquí se incluyen los tres para propósitos de prueba.
+- LocalDateTime: los campos validFrom/validTo de statusHistory usan formato ISO-8601 "YYYY-MM-DDTHH:mm:ss" (sin zona horaria) por ser LocalDateTime.
+- Enums: party.partyType y statusHistory[].statusCode deben coincidir con los valores del SDK (se convierten con MapStruct). Si no estás seguro, omítelos para que vayan como null.
+- Nulos/omisión: cualquier módulo/campo puede omitirse si no aplica.
 - Tipos numéricos: shareCapital es numérico (BigDecimal), numberOfEmployees es entero.
 
 Ejemplo completo:
@@ -109,7 +110,16 @@ Ejemplo completo:
     "mainContactName": "María Rodríguez",
     "mainContactTitle": "Directora General",
     "logoUrl": "https://acme.example.com/logo.png"
-  }
+  },
+  "statusHistory": [
+    {
+      "partyId": null,
+      "statusCode": "ACTIVE",
+      "statusReason": "Alta inicial",
+      "validFrom": "2025-08-21T18:05:00",
+      "validTo": null
+    }
+  ]
 }
 ```
 
@@ -129,7 +139,13 @@ Ejemplo mínimo (valores básicos):
   "legalPerson": {
     "legalName": "Ejemplo S.L.",
     "dateOfIncorporation": "2015-06-01"
-  }
+  },
+  "statusHistory": [
+    {
+      "statusCode": "ACTIVE",
+      "validFrom": "2025-08-21T18:05:00"
+    }
+  ]
 }
 ```
 
@@ -141,6 +157,7 @@ curl -Method Post `
   -Body '{
     "party": {"partyType": "NATURAL_PERSON", "preferredLanguage": "es", "recordSource": "WEB"},
     "naturalPerson": {"firstName": "Ana", "firstSurname": "López", "dateOfBirth": "1985-10-01"},
-    "legalPerson": {"legalName": "Ejemplo S.L.", "dateOfIncorporation": "2015-06-01"}
+    "legalPerson": {"legalName": "Ejemplo S.L.", "dateOfIncorporation": "2015-06-01"},
+    "statusHistory": [{"statusCode": "ACTIVE", "validFrom": "2025-08-21T18:05:00"}]
   }'
 ```

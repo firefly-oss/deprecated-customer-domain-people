@@ -3,9 +3,11 @@ package com.catalis.domain.people.core.integration.mapper;
 import com.catalis.common.customer.sdk.model.PartyDTO;
 import com.catalis.common.customer.sdk.model.NaturalPersonDTO;
 import com.catalis.common.customer.sdk.model.LegalPersonDTO;
+import com.catalis.common.customer.sdk.model.PartyStatusDTO;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyStatusEntryCommand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -24,6 +26,9 @@ public interface CustomersMapper {
     NaturalPersonDTO toNaturalPersonDTO(RegisterNaturalPersonCommand command);
 
     LegalPersonDTO toLegalPersonDTO(RegisterLegalPersonCommand command);
+
+    @Mapping(target = "statusCode", source = "statusCode", qualifiedByName = "mapStatusCode")
+    PartyStatusDTO toPartyStatusDTO(RegisterPartyStatusEntryCommand command);
 
     @Named("mapPartyType")
     default PartyDTO.PartyTypeEnum mapPartyType(String partyType) {
@@ -50,6 +55,13 @@ public interface CustomersMapper {
     default NaturalPersonDTO.ResidencyStatusEnum mapResidencyStatus(String residencyStatus) {
         return Optional.ofNullable(residencyStatus)
                 .map(NaturalPersonDTO.ResidencyStatusEnum::fromValue)
+                .orElse(null);
+    }
+
+    @Named("mapStatusCode")
+    default PartyStatusDTO.StatusCodeEnum mapStatusCode(String statusCode) {
+        return Optional.ofNullable(statusCode)
+                .map(PartyStatusDTO.StatusCodeEnum::fromValue)
                 .orElse(null);
     }
 }

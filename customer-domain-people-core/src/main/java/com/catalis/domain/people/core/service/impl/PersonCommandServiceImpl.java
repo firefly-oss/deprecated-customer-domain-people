@@ -1,14 +1,22 @@
 package com.catalis.domain.people.core.service.impl;
 
+import com.catalis.domain.people.core.orchestrator.RegisterCustomerOrchestrator;
 import com.catalis.domain.people.core.service.PersonCommandService;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterCustomerCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyStatusEntryCommand;
 import com.catalis.transactionalengine.core.SagaContext;
 import com.catalis.transactionalengine.core.SagaResult;
+import com.catalis.transactionalengine.engine.ExpandEach;
 import com.catalis.transactionalengine.engine.SagaEngine;
 import com.catalis.transactionalengine.engine.StepInputs;
+import com.catalis.transactionalengine.registry.SagaBuilder;
+import com.catalis.transactionalengine.registry.SagaDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class PersonCommandServiceImpl implements PersonCommandService {
@@ -22,12 +30,14 @@ public class PersonCommandServiceImpl implements PersonCommandService {
 
     @Override
     public Mono<SagaResult> register(RegisterCustomerCommand command) {
+
         StepInputs inputs = StepInputs.builder()
-                .forStepId("registerParty", command.party())
-                .forStepId("registerNaturalPerson", command.naturalPerson())
-                .forStepId("registerLegalPerson", command.legalPerson())
+                .forStep(RegisterCustomerOrchestrator::registerParty, command.party())
+                .forStep(RegisterCustomerOrchestrator::registerNaturalPerson, command.naturalPerson())
+                .forStep(RegisterCustomerOrchestrator::registerLegalPerson, command.legalPerson())
+                .forStep(RegisterCustomerOrchestrator::registerStatusEntry, ExpandEach.of(command.statusHistory()))
                 .build();
 
-        return engine.execute("RegisterCustomerSaga", inputs);
+        return engine.execute(RegisterCustomerOrchestrator.class, inputs);
     }
 }
