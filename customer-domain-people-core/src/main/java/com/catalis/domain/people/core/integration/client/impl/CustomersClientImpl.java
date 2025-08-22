@@ -1,20 +1,12 @@
 package com.catalis.domain.people.core.integration.client.impl;
 
-import com.catalis.common.customer.sdk.api.LegalPersonApi;
-import com.catalis.common.customer.sdk.api.NaturalPersonApi;
-import com.catalis.common.customer.sdk.api.PartyApi;
-import com.catalis.common.customer.sdk.api.PartyStatusApi;
+import com.catalis.common.customer.sdk.api.*;
 import com.catalis.common.customer.sdk.invoker.ApiClient;
-import com.catalis.common.customer.sdk.model.LegalPersonDTO;
-import com.catalis.common.customer.sdk.model.NaturalPersonDTO;
-import com.catalis.common.customer.sdk.model.PartyDTO;
-import com.catalis.common.customer.sdk.model.PartyStatusDTO;
+import com.catalis.common.customer.sdk.model.*;
 import com.catalis.domain.people.core.integration.client.CustomersClient;
 import com.catalis.domain.people.core.integration.mapper.CustomersMapper;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyStatusEntryCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
+import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,6 +22,10 @@ public class CustomersClientImpl implements CustomersClient {
     private final NaturalPersonApi naturalPersonApi;
     private final LegalPersonApi legalPersonApi;
     private final PartyStatusApi partyStatusApi;
+    private final PepApi pepApi;
+    private final IdentityDocumentApi identityDocumentApi;
+    private final AddressApi addressApi;
+    private final EmailApi emailApi;
     private final CustomersMapper customersMapper;
 
     @Autowired
@@ -38,6 +34,10 @@ public class CustomersClientImpl implements CustomersClient {
         this.naturalPersonApi = new NaturalPersonApi(apiClient);
         this.legalPersonApi = new LegalPersonApi(apiClient);
         this.partyStatusApi = new PartyStatusApi(apiClient);
+        this.pepApi = new PepApi(apiClient);
+        this.identityDocumentApi = new IdentityDocumentApi(apiClient);
+        this.addressApi = new AddressApi(apiClient);
+        this.emailApi = new EmailApi(apiClient);
         this.customersMapper = customersMapper;
     }
 
@@ -86,6 +86,53 @@ public class CustomersClientImpl implements CustomersClient {
     @Override
     public Mono<ResponseEntity<Void>> deletePartyStatus(Long partyId, Long partyStatusId) {
         return partyStatusApi.deletePartyStatusWithHttpInfo(partyId, partyStatusId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<PepDTO>> createPep(Long partyId, RegisterPepCommand pepCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return pepApi.createPepWithHttpInfo(partyId, customersMapper.toPepDTO(pepCommand), xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deletePep(Long partyId, Long pepId) {
+        return pepApi.deletePepWithHttpInfo(partyId, pepId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<IdentityDocumentDTO>> createIdentityDocument(Long partyId, RegisterIdentityDocumentCommand identityDocumentCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return identityDocumentApi.createIdentityDocumentWithHttpInfo(partyId,
+                customersMapper.toIdentityDocumentDTO(identityDocumentCommand), xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteIdentityDocument(Long partyId, Long identityDocumentId) {
+        return identityDocumentApi.deleteIdentityDocumentWithHttpInfo(partyId, identityDocumentId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<AddressDTO>> createAddress(Long partyId, RegisterAddressCommand addressCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return addressApi.createAddressWithHttpInfo(partyId,
+                customersMapper.toAddressDTO(addressCommand), xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteAddress(Long partyId, Long addressId) {
+        return addressApi.deleteAddressWithHttpInfo(partyId, addressId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<EmailDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        return emailApi.createEmailWithHttpInfo(partyId,
+                customersMapper.toEmailDTO(emailCommand), xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteEmail(Long partyId, Long emailId) {
+        return emailApi.deleteEmailWithHttpInfo(partyId, emailId);
     }
 
 }

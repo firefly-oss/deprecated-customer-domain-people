@@ -1,13 +1,7 @@
 package com.catalis.domain.people.core.integration.client;
 
-import com.catalis.common.customer.sdk.model.LegalPersonDTO;
-import com.catalis.common.customer.sdk.model.NaturalPersonDTO;
-import com.catalis.common.customer.sdk.model.PartyDTO;
-import com.catalis.common.customer.sdk.model.PartyStatusDTO;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyStatusEntryCommand;
+import com.catalis.common.customer.sdk.model.*;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
@@ -39,4 +33,21 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<Void>> deletePartyStatus(Long partyId, Long partyStatusId);
 
+    Mono<ResponseEntity<PepDTO>> createPep(Long partyId, RegisterPepCommand pepCommand);
+
+    Mono<ResponseEntity<Void>> deletePep(Long partyId, Long pepId);
+
+    Mono<ResponseEntity<IdentityDocumentDTO>> createIdentityDocument(Long partyId, RegisterIdentityDocumentCommand identityDocumentCommand);
+
+    Mono<ResponseEntity<Void>> deleteIdentityDocument(Long partyId, Long identityDocumentId);
+
+    // Address operations
+    Mono<ResponseEntity<AddressDTO>> createAddress(Long partyId, RegisterAddressCommand addressCommand);
+
+    Mono<ResponseEntity<Void>> deleteAddress(Long partyId, Long addressId);
+
+    // Email operations
+    Mono<ResponseEntity<EmailDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand);
+
+    Mono<ResponseEntity<Void>> deleteEmail(Long partyId, Long emailId);
 }
