@@ -67,4 +67,19 @@ public interface CustomersClient {
     Mono<ResponseEntity<ConsentDTO>> createConsent(Long partyId, RegisterConsentCommand consentCommand);
 
     Mono<ResponseEntity<Void>> deleteConsent(Long partyId, Long consentId);
+
+    // Party Provider operations
+    Mono<ResponseEntity<PartyProviderDTO>> createPartyProvider(Long partyId, RegisterPartyProviderCommand partyProviderCommand);
+
+    Mono<ResponseEntity<Void>> deletePartyProvider(Long partyId, Long partyProviderId);
+
+    // Party Relationship operations
+    Mono<ResponseEntity<PartyRelationshipDTO>> createPartyRelationshipWithHttpInfo(Long partyId, RegisterPartyRelationshipCommand partyRelationshipCommand);
+
+    Mono<ResponseEntity<Void>> deletePartyRelationshipWithHttpInfo(Long partyId, Long partyRelationshipId);
+
+    // Party Group Membership operations
+    Mono<ResponseEntity<PartyGroupMembershipDTO>> createPartyGroupMembershipWithHttpInfo(Long partyId, RegisterPartyGroupMembershipCommand partyGroupMembershipCommand);
+
+    Mono<ResponseEntity<Void>> deletePartyGroupMembershipWithHttpInfo(Long partyId, Long partyGroupMembershipId);
 }

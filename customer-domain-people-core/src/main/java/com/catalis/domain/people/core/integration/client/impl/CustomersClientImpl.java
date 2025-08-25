@@ -28,6 +28,9 @@ public class CustomersClientImpl implements CustomersClient {
     private final PhoneContactsApi phoneApi;
     private final PartyEconomicActivitiesApi partyEconomicActivityApi;
     private final ConsentsApi consentApi;
+    private final PartyProvidersApi partyProvidersApi;
+    private final PartyRelationshipsApi partyRelationshipsApi;
+    private final PartyGroupMembershipsApi partyGroupMembershipsApi;
     private final CustomersMapper customersMapper;
 
     @Autowired
@@ -43,6 +46,9 @@ public class CustomersClientImpl implements CustomersClient {
         this.phoneApi = new PhoneContactsApi(apiClient);
         this.partyEconomicActivityApi = new PartyEconomicActivitiesApi(apiClient);
         this.consentApi = new ConsentsApi(apiClient);
+        this.partyProvidersApi = new PartyProvidersApi(apiClient);
+        this.partyRelationshipsApi = new PartyRelationshipsApi(apiClient);
+        this.partyGroupMembershipsApi = new PartyGroupMembershipsApi(apiClient);
         this.customersMapper = customersMapper;
     }
 
@@ -193,5 +199,44 @@ public class CustomersClientImpl implements CustomersClient {
     @Override
     public Mono<ResponseEntity<Void>> deleteConsent(Long partyId, Long consentId) {
         return consentApi.deleteConsentWithHttpInfo(partyId, consentId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<PartyProviderDTO>> createPartyProvider(Long partyId, RegisterPartyProviderCommand partyProviderCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PartyProviderDTO partyProviderDTO = customersMapper.toPartyProviderDTO(partyProviderCommand);
+        partyProviderDTO.setPartyId(partyId);
+        return partyProvidersApi.createPartyProviderWithHttpInfo(partyId, partyProviderDTO, xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deletePartyProvider(Long partyId, Long partyProviderId) {
+        return partyProvidersApi.deletePartyProviderWithHttpInfo(partyId, partyProviderId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<PartyRelationshipDTO>> createPartyRelationshipWithHttpInfo(Long partyId, RegisterPartyRelationshipCommand partyRelationshipCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PartyRelationshipDTO partyRelationshipDTO = customersMapper.toPartyRelationshipDTO(partyRelationshipCommand);
+        partyRelationshipDTO.setFromPartyId(partyId);
+        return partyRelationshipsApi.createPartyRelationshipWithHttpInfo(partyId, partyRelationshipDTO, xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deletePartyRelationshipWithHttpInfo(Long partyId, Long partyRelationshipId) {
+        return partyRelationshipsApi.deletePartyRelationshipWithHttpInfo(partyId, partyRelationshipId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<PartyGroupMembershipDTO>> createPartyGroupMembershipWithHttpInfo(Long partyId, RegisterPartyGroupMembershipCommand partyGroupMembershipCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PartyGroupMembershipDTO partyGroupMembershipDTO = customersMapper.toPartyGroupMembershipDTO(partyGroupMembershipCommand);
+        partyGroupMembershipDTO.setPartyId(partyId);
+        return partyGroupMembershipsApi.createPartyGroupMembershipWithHttpInfo(partyId, partyGroupMembershipDTO, xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deletePartyGroupMembershipWithHttpInfo(Long partyId, Long partyGroupMembershipId) {
+        return partyGroupMembershipsApi.deletePartyGroupMembershipWithHttpInfo(partyId, partyGroupMembershipId);
     }
 }

@@ -13,6 +13,9 @@ import com.catalis.domain.people.interfaces.dto.command.registercustomer.Registe
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPhoneCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterEconomicActivityLinkCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterConsentCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyProviderCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyRelationshipCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyGroupMembershipCommand;
 import com.catalis.transactionalengine.annotations.Saga;
 import com.catalis.transactionalengine.annotations.SagaStep;
 import com.catalis.transactionalengine.annotations.StepEvent;
@@ -58,187 +61,179 @@ public class RegisterCustomerOrchestrator {
 
     @SagaStep(id = "registerNaturalPerson", compensate = "removeNaturalPerson", dependsOn = "registerParty")
     public Mono<Long> registerNaturalPerson(RegisterNaturalPersonCommand cmd, SagaContext ctx) {
-        if(!ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)){
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createNaturalPerson(partyId, cmd)
-                .mapNotNull(partyDTOResponseEntity ->
-                        Objects.requireNonNull(Objects.requireNonNull(partyDTOResponseEntity.getBody()).getNaturalPersonId()));
+        return !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
+                ? Mono.empty()
+                : customersClient.createNaturalPerson((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getNaturalPersonId()));
     }
 
     public Mono<Void> removeNaturalPerson(Long naturalPersonId, SagaContext ctx) {
-        if(!ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)){
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deleteNaturalPerson(partyId, naturalPersonId).mapNotNull(HttpEntity::getBody);
+        return !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
+                ? Mono.empty()
+                : customersClient.deleteNaturalPerson((Long) ctx.variables().get(PARTY_ID), naturalPersonId).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerLegalPerson", compensate = "removeLegalPerson", dependsOn = "registerParty")
     public Mono<Long> registerLegalPerson(RegisterLegalPersonCommand cmd, SagaContext ctx) {
-        if(!ctx.variables().get(X_CUSTOMER_TYPE).equals("LEGAL_PERSON")){
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createLegalPerson(partyId, cmd)
-                .mapNotNull(legalPersonDTOResponseEntity ->
-                        Objects.requireNonNull(Objects.requireNonNull(legalPersonDTOResponseEntity.getBody()).getLegalEntityId()));
+        return !ctx.variables().get(X_CUSTOMER_TYPE).equals(LEGAL_PERSON)
+                ? Mono.empty()
+                : customersClient.createLegalPerson((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getLegalEntityId()));
     }
 
     public Mono<Void> removeLegalPerson(Long legalPersonId, SagaContext ctx) {
-        if(!ctx.variables().get(X_CUSTOMER_TYPE).equals(LEGAL_PERSON)){
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deleteLegalPerson(partyId, legalPersonId).mapNotNull(HttpEntity::getBody);
+        return !ctx.variables().get(X_CUSTOMER_TYPE).equals(LEGAL_PERSON)
+                ? Mono.empty()
+                : customersClient.deleteLegalPerson((Long) ctx.variables().get(PARTY_ID), legalPersonId).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerStatusEntry", compensate = "removeStatusEntry", dependsOn = {"registerNaturalPerson", "registerLegalPerson"})
     public Mono<Long> registerStatusEntry(RegisterPartyStatusEntryCommand cmd, SagaContext ctx) {
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                        .createPartyStatus(partyId, cmd)
-                        .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getPartyStatusId()));
+        return customersClient.createPartyStatus((Long) ctx.variables().get(PARTY_ID), cmd)
+                .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPartyStatusId()));
     }
 
     public Mono<Void> removeStatusEntry(Long id, SagaContext ctx) {
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deletePartyStatus(partyId, id).mapNotNull(HttpEntity::getBody);
+        return customersClient.deletePartyStatus((Long) ctx.variables().get(PARTY_ID), id).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerPep", compensate = "removePep", dependsOn = "registerStatusEntry")
     public Mono<Long> registerPep(RegisterPepCommand cmd, SagaContext ctx) {
-        if (cmd == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createPep(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getPepId()));
+        return cmd == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
+                ? Mono.empty()
+                : customersClient.createPep((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPepId()));
     }
 
     public Mono<Void> removePep(Long pepId, SagaContext ctx) {
-        if (pepId == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deletePep(partyId, pepId).mapNotNull(HttpEntity::getBody);
+        return pepId == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
+                ? Mono.empty()
+                : customersClient.deletePep((Long) ctx.variables().get(PARTY_ID), pepId).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerIdentityDocument", compensate = "removeIdentityDocument", dependsOn = "registerPep")
     public Mono<Long> registerIdentityDocument(RegisterIdentityDocumentCommand cmd, SagaContext ctx) {
-        if (cmd == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createIdentityDocument(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getIdentityDocumentId()));
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createIdentityDocument((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getIdentityDocumentId()));
     }
 
     public Mono<Void> removeIdentityDocument(Long identityDocumentId, SagaContext ctx) {
-        if (identityDocumentId == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deleteIdentityDocument(partyId, identityDocumentId).mapNotNull(HttpEntity::getBody);
+        return identityDocumentId == null
+                ? Mono.empty()
+                : customersClient.deleteIdentityDocument((Long) ctx.variables().get(PARTY_ID), identityDocumentId).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerAddress", compensate = "removeAddress", dependsOn = "registerIdentityDocument")
     public Mono<Long> registerAddress(RegisterAddressCommand cmd, SagaContext ctx) {
-        if (cmd == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createAddress(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getAddressId()));
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createAddress((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getAddressId()));
     }
 
     public Mono<Void> removeAddress(Long addressId, SagaContext ctx) {
-        if (addressId == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deleteAddress(partyId, addressId).mapNotNull(HttpEntity::getBody);
+        return addressId == null
+                ? Mono.empty()
+                : customersClient.deleteAddress((Long) ctx.variables().get(PARTY_ID), addressId).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerEmail", compensate = "removeEmail", dependsOn = "registerAddress")
     public Mono<Long> registerEmail(RegisterEmailCommand cmd, SagaContext ctx) {
-        if (cmd == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createEmail(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getEmailContactId()));
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createEmail((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getEmailContactId()));
     }
 
     public Mono<Void> removeEmail(Long emailId, SagaContext ctx) {
-        if (emailId == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deleteEmail(partyId, emailId).mapNotNull(HttpEntity::getBody);
+        return emailId == null
+                ? Mono.empty()
+                : customersClient.deleteEmail((Long) ctx.variables().get(PARTY_ID), emailId).mapNotNull(HttpEntity::getBody);
     }
 
     @SagaStep(id = "registerPhone", compensate = "removePhone", dependsOn = "registerEmail")
     public Mono<Long> registerPhone(RegisterPhoneCommand cmd, SagaContext ctx) {
-        if (cmd == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createPhone(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getPhoneContactId()));
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createPhone((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPhoneContactId()));
     }
 
     public Mono<Void> removePhone(Long phoneId, SagaContext ctx) {
-        if (phoneId == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deletePhone(partyId, phoneId).mapNotNull(HttpEntity::getBody);
+        return phoneId == null
+                ? Mono.empty()
+                : customersClient.deletePhone((Long) ctx.variables().get(PARTY_ID), phoneId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = "registerEconomicActivityLink", compensate = "removeEconomicActivityLink", dependsOn = {"registerNaturalPerson", "registerLegalPerson"})
+    @SagaStep(id = "registerEconomicActivityLink", compensate = "removeEconomicActivityLink", dependsOn = {"registerPhone"})
     public Mono<Long> registerEconomicActivityLink(RegisterEconomicActivityLinkCommand cmd, SagaContext ctx) {
-        if (cmd == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createPartyEconomicActivity(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getPartyEconomicActivityId()));
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createPartyEconomicActivity((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPartyEconomicActivityId()));
     }
 
     public Mono<Void> removeEconomicActivityLink(Long id, SagaContext ctx) {
-        if (id == null) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deletePartyEconomicActivity(partyId, id).mapNotNull(HttpEntity::getBody);
+        return id == null
+                ? Mono.empty()
+                : customersClient.deletePartyEconomicActivity((Long) ctx.variables().get(PARTY_ID), id).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = "registerConsent", compensate = "removeConsent", dependsOn = "registerStatusEntry")
+    @SagaStep(id = "registerConsent", compensate = "removeConsent", dependsOn = "registerEconomicActivityLink")
     public Mono<Long> registerConsent(RegisterConsentCommand cmd, SagaContext ctx) {
-        if (cmd == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient
-                .createConsent(partyId, cmd)
-                .mapNotNull(resp -> Objects.requireNonNull(Objects.requireNonNull(resp.getBody()).getConsentId()));
+        return cmd == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
+                ? Mono.empty()
+                : customersClient.createConsent((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getConsentId()));
     }
 
     public Mono<Void> removeConsent(Long consentId, SagaContext ctx) {
-        if (consentId == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)) {
-            return Mono.empty();
-        }
-        Long partyId = (Long) ctx.variables().get(PARTY_ID);
-        return customersClient.deleteConsent(partyId, consentId).mapNotNull(HttpEntity::getBody);
+        return consentId == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
+                ? Mono.empty()
+                : customersClient.deleteConsent((Long) ctx.variables().get(PARTY_ID), consentId).mapNotNull(HttpEntity::getBody);
+    }
+
+    @SagaStep(id = "registerPartyProvider", compensate = "removePartyProvider", dependsOn = "registerConsent")
+    public Mono<Long> registerPartyProvider(RegisterPartyProviderCommand cmd, SagaContext ctx) {
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createPartyProvider((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPartyProviderId()));
+    }
+
+    public Mono<Void> removePartyProvider(Long partyProviderId, SagaContext ctx) {
+        return partyProviderId == null
+                ? Mono.empty()
+                : customersClient.deletePartyProvider((Long) ctx.variables().get(PARTY_ID), partyProviderId).mapNotNull(HttpEntity::getBody);
+    }
+
+    @SagaStep(id = "registerPartyRelationship", compensate = "removePartyRelationship", dependsOn = "registerPartyProvider")
+    public Mono<Long> registerPartyRelationship(RegisterPartyRelationshipCommand cmd, SagaContext ctx) {
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createPartyRelationshipWithHttpInfo((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPartyRelationshipId()));
+    }
+
+    public Mono<Void> removePartyRelationship(Long partyRelationshipId, SagaContext ctx) {
+        return partyRelationshipId == null
+                ? Mono.empty()
+                : customersClient.deletePartyRelationshipWithHttpInfo((Long) ctx.variables().get(PARTY_ID), partyRelationshipId).mapNotNull(HttpEntity::getBody);
+    }
+
+    @SagaStep(id = "registerPartyGroupMembership", compensate = "removePartyGroupMembership", dependsOn = "registerPartyRelationship")
+    public Mono<Long> registerPartyGroupMembership(RegisterPartyGroupMembershipCommand cmd, SagaContext ctx) {
+        return cmd == null
+                ? Mono.empty()
+                : customersClient.createPartyGroupMembershipWithHttpInfo((Long) ctx.variables().get(PARTY_ID), cmd)
+                    .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPartyGroupMembershipId()));
+    }
+
+    public Mono<Void> removePartyGroupMembership(Long partyGroupMembershipId, SagaContext ctx) {
+        return partyGroupMembershipId == null
+                ? Mono.empty()
+                : customersClient.deletePartyGroupMembershipWithHttpInfo((Long) ctx.variables().get(PARTY_ID), partyGroupMembershipId).mapNotNull(HttpEntity::getBody);
     }
 }

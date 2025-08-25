@@ -9,6 +9,9 @@ import com.catalis.domain.people.interfaces.dto.command.registercustomer.Registe
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPepCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterIdentityDocumentCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterConsentCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyProviderCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyRelationshipCommand;
+import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyGroupMembershipCommand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -51,6 +54,12 @@ public interface CustomersMapper {
     PartyEconomicActivityDTO toPartyEconomicActivityDTO(RegisterEconomicActivityLinkCommand command);
 
     ConsentDTO toConsentDTO(RegisterConsentCommand command);
+
+    PartyProviderDTO toPartyProviderDTO(RegisterPartyProviderCommand command);
+
+    PartyRelationshipDTO toPartyRelationshipDTO(RegisterPartyRelationshipCommand command);
+
+    PartyGroupMembershipDTO toPartyGroupMembershipDTO(RegisterPartyGroupMembershipCommand command);
 
     @Named("mapPartyType")
     default PartyDTO.PartyKindEnum mapPartyType(String partyType) {

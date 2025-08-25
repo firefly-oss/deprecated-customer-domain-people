@@ -245,33 +245,46 @@ Ejemplo completo:
   "providers": [
     {
       "partyId": null,
-      "providerTypeId": 1,
-      "providerName": "External Provider Corp",
-      "providerId": "EXT-001",
-      "isActive": true,
-      "registrationDate": "2025-01-01T00:00:00"
+      "providerName": "External Payment Provider",
+      "externalReference": "EXT-PAY-001",
+      "providerStatus": "ACTIVE",
+      "lastSyncDate": "2025-08-25T14:30:00"
+    },
+    {
+      "partyId": null,
+      "providerName": "Identity Verification Service",
+      "externalReference": "ID-VERIFY-002",
+      "providerStatus": "PENDING",
+      "lastSyncDate": "2025-08-25T12:15:00"
     }
   ],
   "relationships": [
     {
-      "partyId": null,
-      "relatedPartyId": 22222222,
+      "fromPartyId": 11111111,
+      "toPartyId": 22222222,
       "relationshipTypeId": 1,
-      "relationshipKind": "SPOUSE",
       "startDate": "2020-06-15T00:00:00",
       "endDate": null,
-      "isActive": true
+      "active": true,
+      "notes": "Relación conyugal principal"
     }
   ],
   "groupMemberships": [
     {
       "partyId": null,
       "groupId": 1001,
-      "membershipTypeId": 1,
-      "membershipKind": "FAMILY",
-      "joinDate": "2020-01-01T00:00:00",
-      "leaveDate": null,
-      "isActive": true
+      "isActive": true,
+      "startDate": "2020-01-01T00:00:00",
+      "endDate": null,
+      "notes": "Miembro activo del grupo familiar"
+    },
+    {
+      "partyId": null,
+      "groupId": 2001,
+      "isActive": false,
+      "startDate": "2018-06-15T00:00:00",
+      "endDate": "2021-12-31T23:59:59",
+      "notes": "Ex-miembro del grupo profesional"
     }
   ]
 }
