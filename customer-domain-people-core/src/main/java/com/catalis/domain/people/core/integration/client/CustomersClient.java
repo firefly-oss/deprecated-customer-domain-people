@@ -1,6 +1,6 @@
 package com.catalis.domain.people.core.integration.client;
 
-import com.catalis.common.customer.sdk.model.*;
+import com.catalis.core.customer.sdk.model.*;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
@@ -23,17 +23,17 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<NaturalPersonDTO>> createNaturalPerson(Long partyId, RegisterNaturalPersonCommand naturalPersonCommand);
 
-    Mono<ResponseEntity<Void>> deleteNaturalPerson(Long id);
+    Mono<ResponseEntity<Void>> deleteNaturalPerson(Long partyId, Long id);
 
-    Mono<ResponseEntity<LegalPersonDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand legalPersonCommand);
-
-    Mono<ResponseEntity<Void>> deleteLegalPerson(Long id);
+    Mono<ResponseEntity<LegalEntityDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand legalPersonCommand);
 
     Mono<ResponseEntity<PartyStatusDTO>> createPartyStatus(Long partyId, RegisterPartyStatusEntryCommand statusEntryCommand);
 
     Mono<ResponseEntity<Void>> deletePartyStatus(Long partyId, Long partyStatusId);
 
-    Mono<ResponseEntity<PepDTO>> createPep(Long partyId, RegisterPepCommand pepCommand);
+    Mono<ResponseEntity<PoliticallyExposedPersonDTO>> createPep(Long partyId, RegisterPepCommand pepCommand);
+
+    Mono<ResponseEntity<Void>> deleteLegalPerson(Long partyId, Long id);
 
     Mono<ResponseEntity<Void>> deletePep(Long partyId, Long pepId);
 
@@ -47,7 +47,24 @@ public interface CustomersClient {
     Mono<ResponseEntity<Void>> deleteAddress(Long partyId, Long addressId);
 
     // Email operations
-    Mono<ResponseEntity<EmailDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand);
+    Mono<ResponseEntity<EmailContactDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand);
 
     Mono<ResponseEntity<Void>> deleteEmail(Long partyId, Long emailId);
+
+    // Phone operations
+    Mono<ResponseEntity<PhoneContactDTO>> createPhone(Long partyId, RegisterPhoneCommand phoneCommand);
+
+    Mono<ResponseEntity<Void>> deletePhone(Long partyId, Long phoneId);
+
+    // Economic Activity operations
+    Mono<ResponseEntity<PartyEconomicActivityDTO>> createPartyEconomicActivity(Long partyId, RegisterEconomicActivityLinkCommand economicActivityLinkCommand);
+
+    Mono<ResponseEntity<Void>> deletePartyEconomicActivity(Long partyId, Long partyEconomicActivityId);
+
+
+
+    // Consent operations
+    Mono<ResponseEntity<ConsentDTO>> createConsent(Long partyId, RegisterConsentCommand consentCommand);
+
+    Mono<ResponseEntity<Void>> deleteConsent(Long partyId, Long consentId);
 }

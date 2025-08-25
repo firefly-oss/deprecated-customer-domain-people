@@ -7,12 +7,7 @@ public record RegisterEconomicActivityLinkCommand(
     Long partyId,
     Long economicActivityId,
     BigDecimal annualTurnover,
-    BigDecimal annualIncome,
-    String incomeSource,
-    String employerName,
-    String position,
-    String notes,
-    Long currencyId,
+    String currencyCode,
     LocalDateTime startDate,
     LocalDateTime endDate,
     Boolean isPrimary

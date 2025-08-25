@@ -40,6 +40,9 @@ public class PersonCommandServiceImpl implements PersonCommandService {
                 .forStep(RegisterCustomerOrchestrator::registerIdentityDocument, ExpandEach.of(command.identityDocuments()))
                 .forStep(RegisterCustomerOrchestrator::registerAddress, ExpandEach.of(command.addresses()))
                 .forStep(RegisterCustomerOrchestrator::registerEmail, ExpandEach.of(command.emails()))
+                .forStep(RegisterCustomerOrchestrator::registerPhone, ExpandEach.of(command.phones()))
+                .forStep(RegisterCustomerOrchestrator::registerEconomicActivityLink, ExpandEach.of(command.economicActivities()))
+                .forStep(RegisterCustomerOrchestrator::registerConsent, ExpandEach.of(command.consents()))
                 .build();
 
         return engine.execute(RegisterCustomerOrchestrator.class, inputs);

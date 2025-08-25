@@ -61,55 +61,56 @@ Or run the `CustomerDomainPeopleApplication` class.
 A continuación se muestran bloques JSON de ejemplo para invocar el endpoint POST /api/v1/customers con el record RegisterCustomerCommand, incluyendo los módulos RegisterPartyCommand (party), RegisterNaturalPersonCommand (naturalPerson), RegisterLegalPersonCommand (legalPerson) y RegisterPartyStatusEntryCommand (statusHistory).
 
 Notas:
-- Formato de fecha: usar "YYYY-MM-DD" (LocalDate) para dateOfBirth y dateOfIncorporation.
+- Formato de fecha: usar "YYYY-MM-DD" (LocalDate) para dateOfBirth e incorporationDate.
 - LocalDateTime: los campos validFrom/validTo de statusHistory usan formato ISO-8601 "YYYY-MM-DDTHH:mm:ss" (sin zona horaria) por ser LocalDateTime.
-- Enums: party.partyType y statusHistory[].statusCode deben coincidir con los valores del SDK (se convierten con MapStruct). Si no estás seguro, omítelos para que vayan como null.
+- Enums: party.partyKind y statusHistory[].statusCode deben coincidir con los valores del SDK (se convierten con MapStruct). Si no estás seguro, omítelos para que vayan como null.
 - Nulos/omisión: cualquier módulo/campo puede omitirse si no aplica.
-- Tipos numéricos: shareCapital es numérico (BigDecimal), numberOfEmployees es entero.
+- Tipos numéricos: shareCapital es numérico (BigDecimal), headcount es entero.
 
 Ejemplo completo:
 ```json
 {
   "party": {
-    "partyType": "NATURAL_PERSON",
+    "partyKind": "NATURAL_PERSON",
     "preferredLanguage": "es",
     "recordSource": "WEB"
   },
   "naturalPerson": {
+    "naturalPersonId": null,
     "partyId": null,
-    "firstName": "Juan",
+    "title": "Sr.",
+    "givenName": "Juan",
     "middleName": "Carlos",
-    "firstSurname": "Pérez",
-    "secondSurname": "García",
+    "familyName1": "Pérez",
+    "familyName2": "García",
     "dateOfBirth": "1990-05-15",
-    "placeOfBirth": "Madrid",
+    "birthPlace": "Madrid",
+    "birthCountryId": 34,
+    "nationalityCountryId": 34,
     "gender": "MALE",
     "maritalStatus": "SINGLE",
-    "taxIdentificationNumber": "12345678Z",
+    "taxIdNumber": "12345678Z",
     "residencyStatus": "RESIDENT",
-    "titleId": 1,
-    "nationalityId": 34,
-    "countryOfResidenceId": 34,
-    "avatarUrl": "https://example.com/avatar.jpg"
+    "occupation": "Ingeniero",
+    "monthlyIncome": 3500.00,
+    "suffix": null,
+    "createdAt": "2025-08-25T10:09:00",
+    "updatedAt": "2025-08-25T10:09:00"
   },
   "legalPerson": {
+    "legalEntityId": null,
     "partyId": null,
     "legalName": "Acme S.A.",
     "tradeName": "Acme",
     "registrationNumber": "RM-123456",
-    "taxIdentificationNumber": "B12345678",
+    "taxIdNumber": "B12345678",
     "legalFormId": 10,
-    "dateOfIncorporation": "2010-03-12",
-    "businessActivity": "Fabricación de dispositivos",
-    "numberOfEmployees": 250,
+    "incorporationDate": "2010-03-12",
+    "industryDescription": "Fabricación de dispositivos",
+    "headcount": 250,
     "shareCapital": 1000000.00,
     "websiteUrl": "https://acme.example.com",
-    "incorporationCountry": "ES",
-    "phoneNumber": "+34 900 123 456",
-    "emailAddress": "contacto@acme.example.com",
-    "mainContactName": "María Rodríguez",
-    "mainContactTitle": "Directora General",
-    "logoUrl": "https://acme.example.com/logo.png"
+    "incorporationCountryId": 34
   },
   "statusHistory": [
     {
@@ -120,12 +121,39 @@ Ejemplo completo:
       "validTo": null
     }
   ],
+  "consents": [
+    {
+      "partyId": null,
+      "consentTypeId": 101,
+      "isGranted": true,
+      "dateGranted": "2025-08-21T18:10:00",
+      "dateRevoked": null,
+      "grantedChannel": "WEB",
+      "revokedChannel": null,
+      "revocationReason": null,
+      "consentVersion": "v1.0",
+      "expiryDate": "2026-08-21T00:00:00",
+      "ipAddress": "192.0.2.1",
+      "userAgent": "Mozilla/5.0",
+      "origin": {
+        "consentOriginId": 10,
+        "name": null,
+        "description": null,
+        "consentType": null,
+        "isActive": null
+      },
+      "proof": {
+        "consentProofId": null,
+        "documentId": 5555
+      }
+    }
+  ],
   "pep": {
     "partyId": null,
-    "isPep": true,
-    "pepCategory": "PRIMARY",
+    "pep": true,
+    "category": "PRIMARY",
     "publicPosition": "Ministro de Hacienda",
-    "countryOfPosition": "ES",
+    "countryOfPositionId": 34,
     "startDate": "2024-01-01T00:00:00",
     "endDate": null,
     "notes": "Caso de prueba PEP"
@@ -133,65 +161,117 @@ Ejemplo completo:
   "identityDocuments": [
     {
       "partyId": null,
+      "identityDocumentCategoryId": 1,
       "identityDocumentTypeId": 1,
       "documentNumber": "12345678Z",
-      "countryOfIssue": "ES",
+      "issuingCountryId": 34,
       "issueDate": "2020-05-10T00:00:00",
       "expiryDate": "2030-05-10T00:00:00",
       "issuingAuthority": "DGP",
-      "isValidated": true,
-      "documentId": 1001
+      "validated": true,
+      "documentUri": "https://docs.example.com/dni-12345678z"
     },
     {
       "partyId": null,
+      "identityDocumentCategoryId": 2,
       "identityDocumentTypeId": 2,
       "documentNumber": "XK1234567",
-      "countryOfIssue": "ES",
+      "issuingCountryId": 34,
       "issueDate": "2019-03-01T00:00:00",
       "expiryDate": "2029-03-01T00:00:00",
       "issuingAuthority": "MAEC",
-      "isValidated": false,
-      "documentId": 1002
+      "validated": false,
+      "documentUri": "https://docs.example.com/passport-xk1234567"
     }
   ],
   "addresses": [
     {
+      "addressId": null,
       "partyId": null,
-      "addressType": "HOME",
-      "addressLine1": "Calle Mayor 1",
-      "addressLine2": "Piso 3, Puerta B",
+      "addressKind": "HOME",
+      "line1": "Calle Mayor 1",
+      "line2": "Piso 3, Puerta B",
       "city": "Madrid",
-      "province": "Madrid",
+      "region": "Madrid",
       "postalCode": "28013",
-      "country": "España",
+      "countryId": 34,
       "isPrimary": true,
       "latitude": 40.4168,
-      "longitude": -3.7038,
-      "normalizationId": "norm-123",
-      "isVerified": true,
-      "formattedAddress": "Calle Mayor 1, 28013 Madrid, España",
-      "administrativeAreaLevel1": "Comunidad de Madrid",
-      "administrativeAreaLevel2": "Madrid",
-      "countryCode": "ES",
-      "administrativeAreaLevel1Id": 13,
-      "administrativeAreaLevel2Id": 28079,
-      "countryId": 34
+      "longitude": -3.7038
     }
   ],
   "emails": [
     {
       "partyId": null,
-      "emailAddress": "juan.perez@example.com",
-      "emailType": "PERSONAL",
+      "email": "juan.perez@example.com",
+      "emailKind": "PERSONAL",
       "isPrimary": true,
       "isVerified": false
     },
     {
       "partyId": null,
-      "emailAddress": "contacto@acme.example.com",
-      "emailType": "WORK",
+      "email": "contacto@acme.example.com",
+      "emailKind": "WORK",
       "isPrimary": false,
       "isVerified": true
+    }
+  ],
+  "phones": [
+    {
+      "partyId": null,
+      "phoneNumber": "+34 600 123 456",
+      "phoneType": "MOBILE",
+      "isPrimary": true,
+      "isVerified": false,
+      "extension": null
+    }
+  ],
+  "economicActivities": [
+    {
+      "partyId": null,
+      "economicActivityId": 101,
+      "annualTurnover": 250000.00,
+      "annualIncome": 80000.00,
+      "incomeSource": "SALARY",
+      "employerName": "Tech Corp",
+      "position": "Software Engineer",
+      "notes": "Ingreso principal",
+      "currencyId": 978,
+      "startDate": "2022-01-01T00:00:00",
+      "endDate": null,
+      "isPrimary": true
+    }
+  ],
+  "providers": [
+    {
+      "partyId": null,
+      "providerTypeId": 1,
+      "providerName": "External Provider Corp",
+      "providerId": "EXT-001",
+      "isActive": true,
+      "registrationDate": "2025-01-01T00:00:00"
+    }
+  ],
+  "relationships": [
+    {
+      "partyId": null,
+      "relatedPartyId": 22222222,
+      "relationshipTypeId": 1,
+      "relationshipKind": "SPOUSE",
+      "startDate": "2020-06-15T00:00:00",
+      "endDate": null,
+      "isActive": true
+    }
+  ],
+  "groupMemberships": [
+    {
+      "partyId": null,
+      "groupId": 1001,
+      "membershipTypeId": 1,
+      "membershipKind": "FAMILY",
+      "joinDate": "2020-01-01T00:00:00",
+      "leaveDate": null,
+      "isActive": true
     }
   ]
 }
@@ -201,18 +281,18 @@ Ejemplo mínimo (valores básicos):
 ```json
 {
   "party": {
-    "partyType": "NATURAL_PERSON",
+    "partyKind": "NATURAL_PERSON",
     "preferredLanguage": "es",
     "recordSource": "WEB"
   },
   "naturalPerson": {
-    "firstName": "Ana",
-    "firstSurname": "López",
+    "givenName": "Ana",
+    "familyName1": "López",
     "dateOfBirth": "1985-10-01"
   },
   "legalPerson": {
     "legalName": "Ejemplo S.L.",
-    "dateOfIncorporation": "2015-06-01"
+    "incorporationDate": "2015-06-01"
   },
   "statusHistory": [
     {
@@ -229,9 +309,9 @@ curl -Method Post `
   -Uri "http://localhost:8080/api/v1/customers" `
   -ContentType "application/json" `
   -Body '{
-    "party": {"partyType": "NATURAL_PERSON", "preferredLanguage": "es", "recordSource": "WEB"},
-    "naturalPerson": {"firstName": "Ana", "firstSurname": "López", "dateOfBirth": "1985-10-01"},
-    "legalPerson": {"legalName": "Ejemplo S.L.", "dateOfIncorporation": "2015-06-01"},
+    "party": {"partyKind": "NATURAL_PERSON", "preferredLanguage": "es", "recordSource": "WEB"},
+    "naturalPerson": {"givenName": "Ana", "familyName1": "López", "dateOfBirth": "1985-10-01"},
+    "legalPerson": {"legalName": "Ejemplo S.L.", "incorporationDate": "2015-06-01"},
     "statusHistory": [{"statusCode": "ACTIVE", "validFrom": "2025-08-21T18:05:00"}]
   }'
 ```

@@ -1,12 +1,11 @@
 package com.catalis.domain.people.core.integration.client.impl;
 
-import com.catalis.common.customer.sdk.api.*;
-import com.catalis.common.customer.sdk.invoker.ApiClient;
-import com.catalis.common.customer.sdk.model.*;
+import com.catalis.core.customer.sdk.api.*;
+import com.catalis.core.customer.sdk.invoker.ApiClient;
+import com.catalis.core.customer.sdk.model.*;
 import com.catalis.domain.people.core.integration.client.CustomersClient;
 import com.catalis.domain.people.core.integration.mapper.CustomersMapper;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
-import jakarta.validation.constraints.Email;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,26 +17,32 @@ import java.util.UUID;
 @Service
 public class CustomersClientImpl implements CustomersClient {
 
-    private final PartyApi partyApi;
-    private final NaturalPersonApi naturalPersonApi;
-    private final LegalPersonApi legalPersonApi;
-    private final PartyStatusApi partyStatusApi;
-    private final PepApi pepApi;
-    private final IdentityDocumentApi identityDocumentApi;
-    private final AddressApi addressApi;
-    private final EmailApi emailApi;
+    private final PartiesApi partyApi;
+    private final NaturalPersonsApi naturalPersonApi;
+    private final LegalEntitiesApi legalPersonApi;
+    private final PartyStatusesApi partyStatusApi;
+    private final PoliticallyExposedPersonsApi pepApi;
+    private final IdentityDocumentsApi identityDocumentApi;
+    private final AddressesApi addressApi;
+    private final EmailContactsApi emailApi;
+    private final PhoneContactsApi phoneApi;
+    private final PartyEconomicActivitiesApi partyEconomicActivityApi;
+    private final ConsentsApi consentApi;
     private final CustomersMapper customersMapper;
 
     @Autowired
     public CustomersClientImpl(ApiClient apiClient, CustomersMapper customersMapper) {
-        this.partyApi = new PartyApi(apiClient);
-        this.naturalPersonApi = new NaturalPersonApi(apiClient);
-        this.legalPersonApi = new LegalPersonApi(apiClient);
-        this.partyStatusApi = new PartyStatusApi(apiClient);
-        this.pepApi = new PepApi(apiClient);
-        this.identityDocumentApi = new IdentityDocumentApi(apiClient);
-        this.addressApi = new AddressApi(apiClient);
-        this.emailApi = new EmailApi(apiClient);
+        this.partyApi = new PartiesApi(apiClient);
+        this.naturalPersonApi = new NaturalPersonsApi(apiClient);
+        this.legalPersonApi = new LegalEntitiesApi(apiClient);
+        this.partyStatusApi = new PartyStatusesApi(apiClient);
+        this.pepApi = new PoliticallyExposedPersonsApi(apiClient);
+        this.identityDocumentApi = new IdentityDocumentsApi(apiClient);
+        this.addressApi = new AddressesApi(apiClient);
+        this.emailApi = new EmailContactsApi(apiClient);
+        this.phoneApi = new PhoneContactsApi(apiClient);
+        this.partyEconomicActivityApi = new PartyEconomicActivitiesApi(apiClient);
+        this.consentApi = new ConsentsApi(apiClient);
         this.customersMapper = customersMapper;
     }
 
@@ -56,31 +61,35 @@ public class CustomersClientImpl implements CustomersClient {
     @Override
     public Mono<ResponseEntity<NaturalPersonDTO>> createNaturalPerson(Long partyId, RegisterNaturalPersonCommand registerNaturalPersonCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return naturalPersonApi.createNaturalPersonWithHttpInfo(partyId,
-                customersMapper.toNaturalPersonDTO(registerNaturalPersonCommand), xIdempotencyKey);
+        NaturalPersonDTO naturalPersonDTO = customersMapper.toNaturalPersonDTO(registerNaturalPersonCommand);
+        naturalPersonDTO.setPartyId(partyId);
+        return naturalPersonApi.createNaturalPersonWithHttpInfo(partyId, naturalPersonDTO, xIdempotencyKey);
     }
 
     @Override
-    public Mono<ResponseEntity<Void>> deleteNaturalPerson(Long id) {
-        return naturalPersonApi.deleteNaturalPersonWithHttpInfo(id);
+    public Mono<ResponseEntity<Void>> deleteNaturalPerson(Long partyId, Long id) {
+        return naturalPersonApi.deleteNaturalPersonWithHttpInfo(partyId, id);
     }
 
     @Override
-    public Mono<ResponseEntity<LegalPersonDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand registerLegalPersonCommand) {
+    public Mono<ResponseEntity<LegalEntityDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand registerLegalPersonCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return legalPersonApi.createLegalPersonWithHttpInfo(partyId,
-                customersMapper.toLegalPersonDTO(registerLegalPersonCommand), xIdempotencyKey);
+        LegalEntityDTO legalEntityDTO = customersMapper.toLegalPersonDTO(registerLegalPersonCommand);
+        legalEntityDTO.setPartyId(partyId);
+        return legalPersonApi.createLegalEntityWithHttpInfo(partyId, legalEntityDTO, xIdempotencyKey);
     }
 
     @Override
-    public Mono<ResponseEntity<Void>> deleteLegalPerson(Long id) {
-        return legalPersonApi.deleteLegalPersonWithHttpInfo(id);
+    public Mono<ResponseEntity<Void>> deleteLegalPerson(Long partyId, Long id) {
+        return legalPersonApi.deleteLegalEntityWithHttpInfo(partyId, id);
     }
 
     @Override
     public Mono<ResponseEntity<PartyStatusDTO>> createPartyStatus(Long partyId, RegisterPartyStatusEntryCommand statusEntryCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return partyStatusApi.createPartyStatusWithHttpInfo(partyId, customersMapper.toPartyStatusDTO(statusEntryCommand), xIdempotencyKey);
+        PartyStatusDTO partyStatusDTO = customersMapper.toPartyStatusDTO(statusEntryCommand);
+        partyStatusDTO.setPartyId(partyId);
+        return partyStatusApi.createPartyStatusWithHttpInfo(partyId, partyStatusDTO, xIdempotencyKey);
     }
 
     @Override
@@ -89,21 +98,24 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
-    public Mono<ResponseEntity<PepDTO>> createPep(Long partyId, RegisterPepCommand pepCommand) {
+    public Mono<ResponseEntity<PoliticallyExposedPersonDTO>> createPep(Long partyId, RegisterPepCommand pepCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return pepApi.createPepWithHttpInfo(partyId, customersMapper.toPepDTO(pepCommand), xIdempotencyKey);
+        PoliticallyExposedPersonDTO politicallyExposedPersonDTO = customersMapper.toPepDTO(pepCommand);
+        politicallyExposedPersonDTO.setPartyId(partyId);
+        return pepApi.createPoliticallyExposedPersonWithHttpInfo(partyId, politicallyExposedPersonDTO, xIdempotencyKey);
     }
 
     @Override
     public Mono<ResponseEntity<Void>> deletePep(Long partyId, Long pepId) {
-        return pepApi.deletePepWithHttpInfo(partyId, pepId);
+        return pepApi.deletePoliticallyExposedPersonWithHttpInfo(partyId, pepId);
     }
 
     @Override
     public Mono<ResponseEntity<IdentityDocumentDTO>> createIdentityDocument(Long partyId, RegisterIdentityDocumentCommand identityDocumentCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return identityDocumentApi.createIdentityDocumentWithHttpInfo(partyId,
-                customersMapper.toIdentityDocumentDTO(identityDocumentCommand), xIdempotencyKey);
+        IdentityDocumentDTO identityDocumentDTO = customersMapper.toIdentityDocumentDTO(identityDocumentCommand);
+        identityDocumentDTO.setPartyId(partyId);
+        return identityDocumentApi.createIdentityDocumentWithHttpInfo(partyId, identityDocumentDTO, xIdempotencyKey);
     }
 
     @Override
@@ -114,8 +126,9 @@ public class CustomersClientImpl implements CustomersClient {
     @Override
     public Mono<ResponseEntity<AddressDTO>> createAddress(Long partyId, RegisterAddressCommand addressCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return addressApi.createAddressWithHttpInfo(partyId,
-                customersMapper.toAddressDTO(addressCommand), xIdempotencyKey);
+        AddressDTO addressDTO = customersMapper.toAddressDTO(addressCommand);
+        addressDTO.setPartyId(partyId);
+        return addressApi.createAddressWithHttpInfo(partyId, addressDTO, xIdempotencyKey);
     }
 
     @Override
@@ -124,15 +137,61 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
-    public Mono<ResponseEntity<EmailDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand) {
+    public Mono<ResponseEntity<EmailContactDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
-        return emailApi.createEmailWithHttpInfo(partyId,
-                customersMapper.toEmailDTO(emailCommand), xIdempotencyKey);
+        EmailContactDTO emailContactDTO = customersMapper.toEmailDTO(emailCommand);
+        emailContactDTO.setPartyId(partyId);
+        return emailApi.createEmailContactWithHttpInfo(partyId, emailContactDTO, xIdempotencyKey);
     }
 
     @Override
     public Mono<ResponseEntity<Void>> deleteEmail(Long partyId, Long emailId) {
-        return emailApi.deleteEmailWithHttpInfo(partyId, emailId);
+        return emailApi.deleteEmailContactWithHttpInfo(partyId, emailId);
     }
 
+    @Override
+    public Mono<ResponseEntity<PhoneContactDTO>> createPhone(Long partyId, RegisterPhoneCommand phoneCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PhoneContactDTO phoneContactDTO = customersMapper.toPhoneDTO(phoneCommand);
+        phoneContactDTO.setPartyId(partyId);
+        return phoneApi.createPhoneContactWithHttpInfo(partyId, phoneContactDTO, xIdempotencyKey);
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deletePhone(Long partyId, Long phoneId) {
+        return phoneApi.deletePhoneContactWithHttpInfo(partyId, phoneId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<PartyEconomicActivityDTO>> createPartyEconomicActivity(Long partyId, RegisterEconomicActivityLinkCommand economicActivityLinkCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PartyEconomicActivityDTO partyEconomicActivityDTO = customersMapper.toPartyEconomicActivityDTO(economicActivityLinkCommand);
+        partyEconomicActivityDTO.setPartyId(partyId);
+        return partyEconomicActivityApi.createPartyEconomicActivityWithHttpInfo(partyId,
+                partyEconomicActivityDTO,
+                xIdempotencyKey
+        );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deletePartyEconomicActivity(Long partyId, Long partyEconomicActivityId) {
+        return partyEconomicActivityApi.deletePartyEconomicActivityWithHttpInfo(partyId, partyEconomicActivityId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<ConsentDTO>> createConsent(Long partyId, RegisterConsentCommand consentCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        ConsentDTO consentDTO = customersMapper.toConsentDTO(consentCommand);
+        consentDTO.setPartyId(partyId);
+        return consentApi.createConsentWithHttpInfo(
+                partyId,
+                consentDTO,
+                xIdempotencyKey
+        );
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteConsent(Long partyId, Long consentId) {
+        return consentApi.deleteConsentWithHttpInfo(partyId, consentId);
+    }
 }

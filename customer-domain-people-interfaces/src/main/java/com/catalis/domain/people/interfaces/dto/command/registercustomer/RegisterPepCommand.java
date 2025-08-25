@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 public record RegisterPepCommand(
     Long partyId,
-    Boolean isPep,
-    String pepCategory,
+    Boolean pep,
+    String category,
     String publicPosition,
-    String countryOfPosition,
+    Long countryOfPositionId,
     LocalDateTime startDate,
     LocalDateTime endDate,
     String notes

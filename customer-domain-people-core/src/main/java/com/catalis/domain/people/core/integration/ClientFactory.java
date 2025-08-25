@@ -26,8 +26,8 @@ public class ClientFactory {
      * @return A configured Customers service client
      */
     @Bean
-    public com.catalis.common.customer.sdk.invoker.ApiClient createCustomersClient() {
-        com.catalis.common.customer.sdk.invoker.ApiClient apiClient = new com.catalis.common.customer.sdk.invoker.ApiClient();
+    public com.catalis.core.customer.sdk.invoker.ApiClient createCustomersClient() {
+        com.catalis.core.customer.sdk.invoker.ApiClient apiClient = new com.catalis.core.customer.sdk.invoker.ApiClient();
         apiClient.setBasePath(customerMgmtProperties.getBasePath());
         return apiClient;
     }

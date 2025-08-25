@@ -13,7 +13,6 @@ public record RegisterCustomerCommand(
         List<RegisterEmailCommand> emails,
         List<RegisterPhoneCommand> phones,
         List<RegisterEconomicActivityLinkCommand> economicActivities,
-        RegisterDigitalCredentialCommand digitalCredential, //Natural person only
         List<RegisterConsentCommand> consents, //Natural person only
         List<RegisterPartyProviderCommand> providers,
         List<RegisterPartyRelationshipCommand> relationships,
