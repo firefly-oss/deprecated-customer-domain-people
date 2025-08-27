@@ -5,19 +5,16 @@ import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
-
+/**
+ * Client interface for integrating with the customer management system.
+ * 
+ * This interface provides reactive operations for managing customer-related entities
+ * including parties, persons, addresses, contacts, and relationships. All operations
+ * return Mono types for non-blocking reactive programming support.
+ */
 public interface CustomersClient {
 
-
-    /**
-     * Creates a new party based on the provided registration command.
-     *
-     * @param registerPartyCommand the command containing the details required to create a party,
-     *                             including party type, preferred language, and record source
-     * @return a {@code Mono<ResponseEntity<PartyDTO>>} containing the details of the newly created party
-     */
     Mono<ResponseEntity<PartyDTO>> createParty(RegisterPartyCommand registerPartyCommand);
-
 
     Mono<ResponseEntity<Void>> deleteParty(Long id);
 
@@ -60,8 +57,6 @@ public interface CustomersClient {
     Mono<ResponseEntity<PartyEconomicActivityDTO>> createPartyEconomicActivity(Long partyId, RegisterEconomicActivityLinkCommand economicActivityLinkCommand);
 
     Mono<ResponseEntity<Void>> deletePartyEconomicActivity(Long partyId, Long partyEconomicActivityId);
-
-
 
     // Consent operations
     Mono<ResponseEntity<ConsentDTO>> createConsent(Long partyId, RegisterConsentCommand consentCommand);

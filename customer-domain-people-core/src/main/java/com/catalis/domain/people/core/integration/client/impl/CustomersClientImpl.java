@@ -13,7 +13,16 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-
+/**
+ * Implementation of CustomersClient that integrates with the customer management system SDK.
+ * 
+ * This adapter class bridges the domain layer with the external customer management APIs,
+ * handling the mapping between domain commands and SDK DTOs. It manages multiple API clients
+ * for different customer-related entities and ensures idempotency through UUID generation.
+ * 
+ * The implementation delegates operations to the appropriate SDK API clients while maintaining
+ * reactive programming patterns throughout the integration layer.
+ */
 @Service
 public class CustomersClientImpl implements CustomersClient {
 

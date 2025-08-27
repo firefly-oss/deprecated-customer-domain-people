@@ -1,7 +1,7 @@
 package com.catalis.domain.people.core.orchestrator;
 
+import com.catalis.common.domain.events.outbound.EventPublisher;
 import com.catalis.domain.people.core.integration.client.CustomersClient;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterCustomerCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
@@ -30,6 +30,17 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Saga orchestrator for customer registration processes.
+ * 
+ * This orchestrator manages the distributed transaction for registering customers,
+ * coordinating multiple steps including party creation, person details registration,
+ * contact information setup, and relationship establishment. Each step is designed
+ * to be compensatable to ensure data consistency in case of failures.
+ * 
+ * The orchestrator handles both natural persons and legal entities, with conditional
+ * logic to process only relevant information based on the customer type.
+ */
 @Saga(name = "RegisterCustomerSaga")
 @Service
 public class RegisterCustomerOrchestrator {
@@ -46,6 +57,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerParty", compensate = "removeParty")
+    @StepEvent(type = "party.registered")
     public Mono<Long> registerParty(RegisterPartyCommand cmd, SagaContext ctx) {
         ctx.variables().put(X_CUSTOMER_TYPE, cmd.partyKind());
         return customersClient
@@ -60,6 +72,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerNaturalPerson", compensate = "removeNaturalPerson", dependsOn = "registerParty")
+    @StepEvent(type = "naturalperson.registered")
     public Mono<Long> registerNaturalPerson(RegisterNaturalPersonCommand cmd, SagaContext ctx) {
         return !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
                 ? Mono.empty()
@@ -74,6 +87,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerLegalPerson", compensate = "removeLegalPerson", dependsOn = "registerParty")
+    @StepEvent(type = "legalperson.registered")
     public Mono<Long> registerLegalPerson(RegisterLegalPersonCommand cmd, SagaContext ctx) {
         return !ctx.variables().get(X_CUSTOMER_TYPE).equals(LEGAL_PERSON)
                 ? Mono.empty()
@@ -87,7 +101,9 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deleteLegalPerson((Long) ctx.variables().get(PARTY_ID), legalPersonId).mapNotNull(HttpEntity::getBody);
     }
 
+
     @SagaStep(id = "registerStatusEntry", compensate = "removeStatusEntry", dependsOn = {"registerNaturalPerson", "registerLegalPerson"})
+    @StepEvent(type = "partystatus.registered")
     public Mono<Long> registerStatusEntry(RegisterPartyStatusEntryCommand cmd, SagaContext ctx) {
         return customersClient.createPartyStatus((Long) ctx.variables().get(PARTY_ID), cmd)
                 .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getPartyStatusId()));
@@ -98,6 +114,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerPep", compensate = "removePep", dependsOn = "registerStatusEntry")
+    @StepEvent(type = "pep.registered")
     public Mono<Long> registerPep(RegisterPepCommand cmd, SagaContext ctx) {
         return cmd == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
                 ? Mono.empty()
@@ -112,6 +129,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerIdentityDocument", compensate = "removeIdentityDocument", dependsOn = "registerPep")
+    @StepEvent(type = "identitydocument.registered")
     public Mono<Long> registerIdentityDocument(RegisterIdentityDocumentCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -126,6 +144,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerAddress", compensate = "removeAddress", dependsOn = "registerIdentityDocument")
+    @StepEvent(type = "address.registered")
     public Mono<Long> registerAddress(RegisterAddressCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -140,6 +159,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerEmail", compensate = "removeEmail", dependsOn = "registerAddress")
+    @StepEvent(type = "email.registered")
     public Mono<Long> registerEmail(RegisterEmailCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -154,6 +174,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerPhone", compensate = "removePhone", dependsOn = "registerEmail")
+    @StepEvent(type = "phone.registered")
     public Mono<Long> registerPhone(RegisterPhoneCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -168,6 +189,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerEconomicActivityLink", compensate = "removeEconomicActivityLink", dependsOn = {"registerPhone"})
+    @StepEvent(type = "economicactivity.registered")
     public Mono<Long> registerEconomicActivityLink(RegisterEconomicActivityLinkCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -182,6 +204,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerConsent", compensate = "removeConsent", dependsOn = "registerEconomicActivityLink")
+    @StepEvent(type = "consent.registered")
     public Mono<Long> registerConsent(RegisterConsentCommand cmd, SagaContext ctx) {
         return cmd == null || !ctx.variables().get(X_CUSTOMER_TYPE).equals(NATURAL_PERSON)
                 ? Mono.empty()
@@ -196,6 +219,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerPartyProvider", compensate = "removePartyProvider", dependsOn = "registerConsent")
+    @StepEvent(type = "partyprovider.registered")
     public Mono<Long> registerPartyProvider(RegisterPartyProviderCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -210,6 +234,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerPartyRelationship", compensate = "removePartyRelationship", dependsOn = "registerPartyProvider")
+    @StepEvent(type = "partyrelationship.registered")
     public Mono<Long> registerPartyRelationship(RegisterPartyRelationshipCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
@@ -224,6 +249,7 @@ public class RegisterCustomerOrchestrator {
     }
 
     @SagaStep(id = "registerPartyGroupMembership", compensate = "removePartyGroupMembership", dependsOn = "registerPartyRelationship")
+    @StepEvent(type = "partygroupmembership.registered")
     public Mono<Long> registerPartyGroupMembership(RegisterPartyGroupMembershipCommand cmd, SagaContext ctx) {
         return cmd == null
                 ? Mono.empty()
