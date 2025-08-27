@@ -1,4 +1,4 @@
-package com.catalis.domain.people.interfaces.dto.command.registercustomer;
+package com.catalis.domain.people.interfaces.dto.commands;
 
 public record RegisterPhoneCommand(
     Long partyId,

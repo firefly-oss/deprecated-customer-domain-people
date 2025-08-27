@@ -1,4 +1,4 @@
-package com.catalis.domain.people.interfaces.dto.command.registercustomer;
+package com.catalis.domain.people.interfaces.dto.commands;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;

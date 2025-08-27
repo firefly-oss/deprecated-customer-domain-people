@@ -1,8 +1,10 @@
 package com.catalis.domain.people.core.service.impl;
 
-import com.catalis.domain.people.core.orchestrator.register.RegisterCustomerOrchestrator;
-import com.catalis.domain.people.core.service.PersonCommandService;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterCustomerCommand;
+import com.catalis.domain.people.core.orchestrator.address.AddAddressOrchestrator;
+import com.catalis.domain.people.core.orchestrator.customer.RegisterCustomerOrchestrator;
+import com.catalis.domain.people.core.service.CommandService;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
 import com.catalis.transactionalengine.core.SagaResult;
 import com.catalis.transactionalengine.engine.ExpandEach;
 import com.catalis.transactionalengine.engine.SagaEngine;
@@ -20,12 +22,12 @@ import reactor.core.publisher.Mono;
  * personal details, addresses, contacts, and relationships.
  */
 @Service
-public class PersonCommandServiceImpl implements PersonCommandService {
+public class CommandServiceImpl implements CommandService {
 
     private final SagaEngine engine;
 
     @Autowired
-    public PersonCommandServiceImpl(SagaEngine engine) {
+    public CommandServiceImpl(SagaEngine engine) {
         this.engine = engine;
     }
 
@@ -53,127 +55,130 @@ public class PersonCommandServiceImpl implements PersonCommandService {
     }
 
     @Override
-    public Mono<Void> updateName(Long customerId, String newName) {
+    public Mono<Void> updateName(Long partyId, String newName) {
         // TODO: Implement name update logic
         return Mono.empty();
     }
 
     // Address operations
     @Override
-    public Mono<Void> addAddress(Long customerId, Object addressData) {
-        // TODO: Implement add address logic
-        return Mono.empty();
+    public Mono<SagaResult> addAddress(Long partyId, RegisterAddressCommand addressCommand) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(AddAddressOrchestrator::registerAddress, addressCommand.withPartyId(partyId))
+                .build();
+
+        return engine.execute(AddAddressOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> updateAddress(Long customerId, Long addressId, Object addressData) {
+    public Mono<Void> updateAddress(Long partyId, Long addressId, Object addressData) {
         // TODO: Implement update address logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> removeAddress(Long customerId, Long addressId) {
+    public Mono<Void> removeAddress(Long partyId, Long addressId) {
         // TODO: Implement remove address logic
         return Mono.empty();
     }
 
     // Email operations
     @Override
-    public Mono<Void> addEmail(Long customerId, Object emailData) {
+    public Mono<Void> addEmail(Long partyId, Object emailData) {
         // TODO: Implement add email logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> removeEmail(Long customerId, Long emailId) {
+    public Mono<Void> removeEmail(Long partyId, Long emailId) {
         // TODO: Implement remove email logic
         return Mono.empty();
     }
 
     // Phone operations
     @Override
-    public Mono<Void> addPhone(Long customerId, Object phoneData) {
+    public Mono<Void> addPhone(Long partyId, Object phoneData) {
         // TODO: Implement add phone logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> removePhone(Long customerId, Long phoneId) {
+    public Mono<Void> removePhone(Long partyId, Long phoneId) {
         // TODO: Implement remove phone logic
         return Mono.empty();
     }
 
     // Preferred channel operations
     @Override
-    public Mono<Void> setPreferredChannel(Long customerId, Object channelData) {
+    public Mono<Void> setPreferredChannel(Long partyId, Object channelData) {
         // TODO: Implement set preferred channel logic
         return Mono.empty();
     }
 
     // Authorized signatory operations
     @Override
-    public Mono<Void> addAuthorizedSignatory(Long customerId, Object signatoryData) {
+    public Mono<Void> addAuthorizedSignatory(Long partyId, Object signatoryData) {
         // TODO: Implement add authorized signatory logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> removeAuthorizedSignatory(Long customerId, Long partyId) {
+    public Mono<Void> removeAuthorizedSignatory(Long partyId) {
         // TODO: Implement remove authorized signatory logic
         return Mono.empty();
     }
 
     // Status operations
     @Override
-    public Mono<Void> markDormant(Long customerId) {
+    public Mono<Void> markDormant(Long partyId) {
         // TODO: Implement mark dormant logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> reactivate(Long customerId) {
+    public Mono<Void> reactivate(Long partyId) {
         // TODO: Implement reactivate logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> markDeceased(Long customerId) {
+    public Mono<Void> markDeceased(Long partyId) {
         // TODO: Implement mark deceased logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> requestClosure(Long customerId) {
+    public Mono<Void> requestClosure(Long partyId) {
         // TODO: Implement request closure logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> confirmClosure(Long customerId) {
+    public Mono<Void> confirmClosure(Long partyId) {
         // TODO: Implement confirm closure logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> mergeWith(Long customerId, Object mergeData) {
+    public Mono<Void> mergeWith(Long partyId, Object mergeData) {
         // TODO: Implement merge with logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> splitFrom(Long customerId, Object splitData) {
+    public Mono<Void> splitFrom(Long partyId, Object splitData) {
         // TODO: Implement split from logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> lockProfile(Long customerId) {
+    public Mono<Void> lockProfile(Long partyId) {
         // TODO: Implement lock profile logic
         return Mono.empty();
     }
 
     @Override
-    public Mono<Void> unlockProfile(Long customerId) {
+    public Mono<Void> unlockProfile(Long partyId) {
         // TODO: Implement unlock profile logic
         return Mono.empty();
     }

@@ -1,9 +1,10 @@
 package com.catalis.domain.people.web.controller;
 
-import com.catalis.domain.people.core.service.PersonCommandService;
-import com.catalis.domain.people.core.service.PersonQueryService;
+import com.catalis.domain.people.core.service.CommandService;
+import com.catalis.domain.people.core.service.QueryService;
 import com.catalis.domain.people.core.service.exceptions.DuplicateTaxIdException;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterCustomerCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
 import com.catalis.domain.people.interfaces.dto.query.PersonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,197 +20,196 @@ import reactor.core.publisher.Mono;
 @Tag(name = "Customers", description = "CQ queries and registration for customers")
 public class PeopleController {
 
-    private final PersonQueryService personQueryService;
-    private final PersonCommandService personCommandService;
+    private final QueryService queryService;
+    private final CommandService commandService;
 
     @PostMapping
     @Operation(summary = "Register a customer", description = "Registers a customer")
     public Mono<ResponseEntity<Object>> registerCustomer(@Valid @RequestBody RegisterCustomerCommand command) {
-        return personCommandService.register(command)
+        return commandService.register(command)
                 .thenReturn(ResponseEntity.noContent().build())
                 .onErrorResume(DuplicateTaxIdException.class,
                         ex -> Mono.just(ResponseEntity.status(409).body(null)));
     }
 
-    @PatchMapping("/{customerId}/name")
+    @PatchMapping("/{partyId}/name")
     @Operation(summary = "Update customer name", description = "Updates the name of an existing customer")
     public Mono<ResponseEntity<Object>> updateCustomerName(
-            @PathVariable("customerId") Long customerId, 
+            @PathVariable("partyId") Long partyId,
             @RequestBody String newName) {
-        return personCommandService.updateName(customerId, newName)
+        return commandService.updateName(partyId, newName)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
 
-    @GetMapping("/{customerId}")
+    @GetMapping("/{partyId}")
     @Operation(summary = "Get customer by id", description = "Returns a consolidated customer profile")
-    public Mono<ResponseEntity<PersonView>> retrieveCustomerInformation(@PathVariable("customerId") Long customerId) {
-        return personQueryService.getCustomerById(customerId)
+    public Mono<ResponseEntity<PersonView>> retrieveCustomerInformation(@PathVariable("partyId") Long partyId) {
+        return queryService.getCustomerById(partyId)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     // Address endpoints
-    @PostMapping("/{customerId}/addresses")
+    @PostMapping("/{partyId}/addresses")
     @Operation(summary = "Add customer address", description = "Add an address with validity period; prevent primary overlaps.")
     public Mono<ResponseEntity<Object>> addCustomerAddress(
-            @PathVariable("customerId") Long customerId, 
-            @RequestBody Object addressData) {
-        return personCommandService.addAddress(customerId, addressData)
+            @PathVariable("partyId") Long partyId,
+            @RequestBody RegisterAddressCommand addressCommand) {
+        return commandService.addAddress(partyId, addressCommand)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PatchMapping("/{customerId}/addresses/{addressId}")
+    @PatchMapping("/{partyId}/addresses/{addressId}")
     @Operation(summary = "Update customer address", description = "Modify address fields keeping version history.")
     public Mono<ResponseEntity<Object>> updateCustomerAddress(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @PathVariable("addressId") Long addressId,
             @RequestBody Object addressData) {
-        return personCommandService.updateAddress(customerId, addressId, addressData)
+        return commandService.updateAddress(partyId, addressId, addressData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @DeleteMapping("/{customerId}/addresses/{addressId}")
+    @DeleteMapping("/{partyId}/addresses/{addressId}")
     @Operation(summary = "Remove customer address", description = "Remove or end-date an address; preserve audit.")
     public Mono<ResponseEntity<Object>> removeCustomerAddress(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @PathVariable("addressId") Long addressId) {
-        return personCommandService.removeAddress(customerId, addressId)
+        return commandService.removeAddress(partyId, addressId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
     // Email endpoints
-    @PostMapping("/{customerId}/emails")
+    @PostMapping("/{partyId}/emails")
     @Operation(summary = "Add customer email", description = "Add email; validate format and uniqueness within customer.")
     public Mono<ResponseEntity<Object>> addCustomerEmail(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @RequestBody Object emailData) {
-        return personCommandService.addEmail(customerId, emailData)
+        return commandService.addEmail(partyId, emailData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @DeleteMapping("/{customerId}/emails/{emailId}")
+    @DeleteMapping("/{partyId}/emails/{emailId}")
     @Operation(summary = "Remove customer email", description = "Remove email from profile.")
     public Mono<ResponseEntity<Object>> removeCustomerEmail(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @PathVariable("emailId") Long emailId) {
-        return personCommandService.removeEmail(customerId, emailId)
+        return commandService.removeEmail(partyId, emailId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
     // Phone endpoints
-    @PostMapping("/{customerId}/phones")
+    @PostMapping("/{partyId}/phones")
     @Operation(summary = "Add customer phone", description = "Add phone in E.164 with label (mobile/landline).")
     public Mono<ResponseEntity<Object>> addCustomerPhone(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @RequestBody Object phoneData) {
-        return personCommandService.addPhone(customerId, phoneData)
+        return commandService.addPhone(partyId, phoneData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @DeleteMapping("/{customerId}/phones/{phoneId}")
+    @DeleteMapping("/{partyId}/phones/{phoneId}")
     @Operation(summary = "Remove customer phone", description = "Remove phone from profile.")
     public Mono<ResponseEntity<Object>> removeCustomerPhone(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @PathVariable("phoneId") Long phoneId) {
-        return personCommandService.removePhone(customerId, phoneId)
+        return commandService.removePhone(partyId, phoneId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
     // Preferred channel endpoint
-    @PostMapping("/{customerId}/preferred-channel")
+    @PostMapping("/{partyId}/preferred-channel")
     @Operation(summary = "Set preferred channel", description = "Set preferred contact channel (email/phone); one per type.")
     public Mono<ResponseEntity<Object>> setPreferredChannel(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @RequestBody Object channelData) {
-        return personCommandService.setPreferredChannel(customerId, channelData)
+        return commandService.setPreferredChannel(partyId, channelData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
     // Authorized signers endpoints
-    @PostMapping("/{customerId}/authorized-signers")
+    @PostMapping("/{partyId}/authorized-signers")
     @Operation(summary = "Add authorized signatory", description = "Grant a person authority scope to operate (links with PartyRelationship).")
     public Mono<ResponseEntity<Object>> addAuthorizedSignatory(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @RequestBody Object signatoryData) {
-        return personCommandService.addAuthorizedSignatory(customerId, signatoryData)
+        return commandService.addAuthorizedSignatory(partyId, signatoryData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @DeleteMapping("/{customerId}/authorized-signers/{partyId}")
+    @DeleteMapping("/{partyId}/authorized-signers")
     @Operation(summary = "Remove authorized signatory", description = "Revoke authority to operate for the given party.")
     public Mono<ResponseEntity<Object>> removeAuthorizedSignatory(
-            @PathVariable("customerId") Long customerId,
             @PathVariable("partyId") Long partyId) {
-        return personCommandService.removeAuthorizedSignatory(customerId, partyId)
+        return commandService.removeAuthorizedSignatory(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
     // Status management endpoints
-    @PostMapping("/{customerId}/dormant")
+    @PostMapping("/{partyId}/dormant")
     @Operation(summary = "Mark customer dormant", description = "Flag profile as dormant due to inactivity.")
-    public Mono<ResponseEntity<Object>> markCustomerDormant(@PathVariable("customerId") Long customerId) {
-        return personCommandService.markDormant(customerId)
+    public Mono<ResponseEntity<Object>> markCustomerDormant(@PathVariable("partyId") Long partyId) {
+        return commandService.markDormant(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/reactivate")
+    @PostMapping("/{partyId}/reactivate")
     @Operation(summary = "Reactivate customer", description = "Reactivate a dormant profile.")
-    public Mono<ResponseEntity<Object>> reactivateCustomer(@PathVariable("customerId") Long customerId) {
-        return personCommandService.reactivate(customerId)
+    public Mono<ResponseEntity<Object>> reactivateCustomer(@PathVariable("partyId") Long partyId) {
+        return commandService.reactivate(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/deceased")
+    @PostMapping("/{partyId}/deceased")
     @Operation(summary = "Mark customer deceased", description = "Mark as deceased and block dependent operations.")
-    public Mono<ResponseEntity<Object>> markCustomerDeceased(@PathVariable("customerId") Long customerId) {
-        return personCommandService.markDeceased(customerId)
+    public Mono<ResponseEntity<Object>> markCustomerDeceased(@PathVariable("partyId") Long partyId) {
+        return commandService.markDeceased(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/closure-request")
+    @PostMapping("/{partyId}/closure-request")
     @Operation(summary = "Request customer closure", description = "Request customer closure once obligations are zero.")
-    public Mono<ResponseEntity<Object>> requestCustomerClosure(@PathVariable("customerId") Long customerId) {
-        return personCommandService.requestClosure(customerId)
+    public Mono<ResponseEntity<Object>> requestCustomerClosure(@PathVariable("partyId") Long partyId) {
+        return commandService.requestClosure(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/confirm-closure")
+    @PostMapping("/{partyId}/confirm-closure")
     @Operation(summary = "Confirm customer closure", description = "Confirm closure after checks pass.")
-    public Mono<ResponseEntity<Object>> confirmCustomerClosure(@PathVariable("customerId") Long customerId) {
-        return personCommandService.confirmClosure(customerId)
+    public Mono<ResponseEntity<Object>> confirmCustomerClosure(@PathVariable("partyId") Long partyId) {
+        return commandService.confirmClosure(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/merge")
+    @PostMapping("/{partyId}/merge")
     @Operation(summary = "Merge customer profile", description = "Merge duplicate profile (migrate relations/consents).")
     public Mono<ResponseEntity<Object>> mergeCustomerProfile(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @RequestBody Object mergeData) {
-        return personCommandService.mergeWith(customerId, mergeData)
+        return commandService.mergeWith(partyId, mergeData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/split")
+    @PostMapping("/{partyId}/split")
     @Operation(summary = "Split customer profile", description = "Controlled rollback of a previous merge.")
     public Mono<ResponseEntity<Object>> splitCustomerProfile(
-            @PathVariable("customerId") Long customerId,
+            @PathVariable("partyId") Long partyId,
             @RequestBody Object splitData) {
-        return personCommandService.splitFrom(customerId, splitData)
+        return commandService.splitFrom(partyId, splitData)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/lock")
+    @PostMapping("/{partyId}/lock")
     @Operation(summary = "Lock customer profile", description = "Lock profile for audit/investigation; block writes.")
-    public Mono<ResponseEntity<Object>> lockCustomerProfile(@PathVariable("customerId") Long customerId) {
-        return personCommandService.lockProfile(customerId)
+    public Mono<ResponseEntity<Object>> lockCustomerProfile(@PathVariable("partyId") Long partyId) {
+        return commandService.lockProfile(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
-    @PostMapping("/{customerId}/unlock")
+    @PostMapping("/{partyId}/unlock")
     @Operation(summary = "Unlock customer profile", description = "Unlock profile for changes.")
-    public Mono<ResponseEntity<Object>> unlockCustomerProfile(@PathVariable("customerId") Long customerId) {
-        return personCommandService.unlockProfile(customerId)
+    public Mono<ResponseEntity<Object>> unlockCustomerProfile(@PathVariable("partyId") Long partyId) {
+        return commandService.unlockProfile(partyId)
                 .thenReturn(ResponseEntity.ok().build());
     }
 }

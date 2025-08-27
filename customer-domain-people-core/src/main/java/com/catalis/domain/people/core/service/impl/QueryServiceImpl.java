@@ -1,17 +1,16 @@
 package com.catalis.domain.people.core.service.impl;
 
-import com.catalis.domain.people.core.service.PersonQueryService;
+import com.catalis.domain.people.core.service.QueryService;
 import com.catalis.domain.people.interfaces.dto.query.PersonView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class PersonQueryServiceImpl implements PersonQueryService {
+public class QueryServiceImpl implements QueryService {
 
     @Override
     public Mono<PersonView> getCustomerById(Long customerId) {

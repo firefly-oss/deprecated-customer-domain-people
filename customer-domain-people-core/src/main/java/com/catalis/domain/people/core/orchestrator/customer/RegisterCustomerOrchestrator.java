@@ -1,20 +1,20 @@
-package com.catalis.domain.people.core.orchestrator.register;
+package com.catalis.domain.people.core.orchestrator.customer;
 
 import com.catalis.domain.people.core.integration.client.CustomersClient;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterLegalPersonCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterNaturalPersonCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyStatusEntryCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPepCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterIdentityDocumentCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterAddressCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterEmailCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPhoneCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterEconomicActivityLinkCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterConsentCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyProviderCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyRelationshipCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyGroupMembershipCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterLegalPersonCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterNaturalPersonCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyStatusEntryCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPepCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterIdentityDocumentCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterEmailCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPhoneCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterEconomicActivityLinkCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterConsentCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyProviderCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyRelationshipCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyGroupMembershipCommand;
 import com.catalis.transactionalengine.annotations.Saga;
 import com.catalis.transactionalengine.annotations.SagaStep;
 import com.catalis.transactionalengine.annotations.StepEvent;
@@ -26,7 +26,9 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-import static com.catalis.domain.people.core.orchestrator.register.RegisterCustomerConstants.*;
+import static com.catalis.domain.people.core.orchestrator.GlobalConstants.CTX_CUSTOMER_TYPE;
+import static com.catalis.domain.people.core.orchestrator.GlobalConstants.CTX_PARTY_ID;
+import static com.catalis.domain.people.core.orchestrator.customer.RegisterCustomerConstants.*;
 
 /**
  * Saga orchestrator for customer registration processes.

@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 /**
  * Query service (CQ) for people
  */
-public interface PersonQueryService {
+public interface QueryService {
     
     /**
      * Retrieves a person by their customer ID.

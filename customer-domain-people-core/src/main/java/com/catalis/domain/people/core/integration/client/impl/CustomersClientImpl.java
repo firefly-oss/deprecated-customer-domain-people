@@ -5,7 +5,7 @@ import com.catalis.core.customer.sdk.invoker.ApiClient;
 import com.catalis.core.customer.sdk.model.*;
 import com.catalis.domain.people.core.integration.client.CustomersClient;
 import com.catalis.domain.people.core.integration.mapper.CustomersMapper;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
+import com.catalis.domain.people.interfaces.dto.commands.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

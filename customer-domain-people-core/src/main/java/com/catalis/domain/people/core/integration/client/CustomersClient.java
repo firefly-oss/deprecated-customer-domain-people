@@ -1,7 +1,7 @@
 package com.catalis.domain.people.core.integration.client;
 
 import com.catalis.core.customer.sdk.model.*;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.*;
+import com.catalis.domain.people.interfaces.dto.commands.*;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 

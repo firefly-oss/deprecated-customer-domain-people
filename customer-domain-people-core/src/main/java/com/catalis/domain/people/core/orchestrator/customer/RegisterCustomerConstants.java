@@ -1,4 +1,4 @@
-package com.catalis.domain.people.core.orchestrator.register;
+package com.catalis.domain.people.core.orchestrator.customer;
 
 public class RegisterCustomerConstants {
 
@@ -8,10 +8,6 @@ public class RegisterCustomerConstants {
     // ============================== CUSTOMER TYPE CONSTANTS ==============================
     public static final String TYPE_LEGAL_PERSON = "ORGANIZATION";
     public static final String TYPE_NATURAL_PERSON = "INDIVIDUAL";
-
-    // ============================== CONTEXT VARIABLES ==============================
-    public static final String CTX_CUSTOMER_TYPE = "X-Customer-Type";
-    public static final String CTX_PARTY_ID = "partyId";
 
     // ============================== STEP IDENTIFIERS ==============================
     public static final String STEP_REGISTER_PARTY = "registerParty";
