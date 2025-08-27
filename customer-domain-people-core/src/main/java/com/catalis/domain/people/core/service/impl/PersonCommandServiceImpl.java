@@ -1,26 +1,15 @@
 package com.catalis.domain.people.core.service.impl;
 
-import com.catalis.common.domain.events.inbound.EventListener;
-import com.catalis.common.domain.events.outbound.DomainEventPublisher;
-import com.catalis.common.domain.events.outbound.EventPublisher;
-import com.catalis.common.domain.events.properties.DomainEventsProperties;
-import com.catalis.domain.people.core.orchestrator.RegisterCustomerOrchestrator;
+import com.catalis.domain.people.core.orchestrator.register.RegisterCustomerOrchestrator;
 import com.catalis.domain.people.core.service.PersonCommandService;
 import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterCustomerCommand;
-import com.catalis.domain.people.interfaces.dto.command.registercustomer.RegisterPartyStatusEntryCommand;
-import com.catalis.transactionalengine.core.SagaContext;
 import com.catalis.transactionalengine.core.SagaResult;
 import com.catalis.transactionalengine.engine.ExpandEach;
 import com.catalis.transactionalengine.engine.SagaEngine;
 import com.catalis.transactionalengine.engine.StepInputs;
-import com.catalis.transactionalengine.registry.SagaBuilder;
-import com.catalis.transactionalengine.registry.SagaDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of PersonCommandService that orchestrates customer registration
