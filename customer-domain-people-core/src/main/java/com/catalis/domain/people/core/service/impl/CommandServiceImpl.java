@@ -2,6 +2,7 @@ package com.catalis.domain.people.core.service.impl;
 
 import com.catalis.domain.people.core.orchestrator.address.AddAddressOrchestrator;
 import com.catalis.domain.people.core.orchestrator.address.RemoveAddressOrchestrator;
+import com.catalis.domain.people.core.orchestrator.address.UpdateAddressOrchestrator;
 import com.catalis.domain.people.core.orchestrator.customer.RegisterCustomerOrchestrator;
 import com.catalis.domain.people.core.orchestrator.customer.UpdateNameOrchestrator;
 import com.catalis.domain.people.core.orchestrator.email.AddEmailOrchestrator;
@@ -82,9 +83,13 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Mono<Void> updateAddress(Long partyId, Long addressId, Object addressData) {
-        // TODO: Implement update address logic
-        return Mono.empty();
+    public Mono<Void> updateAddress(Long partyId, Long addressId, RegisterAddressCommand addressData) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateAddressOrchestrator::updateAddress, addressData.withAddressId(addressId).withPartyId(partyId))
+                .build();
+
+        return engine.execute(UpdateAddressOrchestrator.class, inputs)
+                .then();
     }
 
     @Override

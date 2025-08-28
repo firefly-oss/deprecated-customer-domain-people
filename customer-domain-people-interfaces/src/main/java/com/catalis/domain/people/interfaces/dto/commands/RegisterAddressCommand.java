@@ -37,4 +37,27 @@ public record RegisterAddressCommand(
             this.longitude
         );
     }
+    
+    /**
+     * Creates a new RegisterAddressCommand with the specified addressId while preserving all other fields.
+     *
+     * @param addressId the new addressId to set
+     * @return a new RegisterAddressCommand instance with the updated addressId
+     */
+    public RegisterAddressCommand withAddressId(Long addressId) {
+        return new RegisterAddressCommand(
+            addressId,
+            this.partyId,
+            this.addressKind,
+            this.line1,
+            this.line2,
+            this.city,
+            this.region,
+            this.postalCode,
+            this.countryId,
+            this.isPrimary,
+            this.latitude,
+            this.longitude
+        );
+    }
 }

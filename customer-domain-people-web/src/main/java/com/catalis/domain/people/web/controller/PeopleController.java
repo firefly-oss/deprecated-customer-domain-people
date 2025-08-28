@@ -66,7 +66,7 @@ public class PeopleController {
     public Mono<ResponseEntity<Object>> updateCustomerAddress(
             @PathVariable("partyId") Long partyId,
             @PathVariable("addressId") Long addressId,
-            @RequestBody Object addressData) {
+            @RequestBody RegisterAddressCommand addressData) {
         return commandService.updateAddress(partyId, addressId, addressData)
                 .thenReturn(ResponseEntity.ok().build());
     }

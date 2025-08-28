@@ -185,6 +185,14 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
+    public Mono<ResponseEntity<AddressDTO>> updateAddress(Long partyId, Long addressId, RegisterAddressCommand addressCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        AddressDTO addressDTO = customersMapper.toAddressDTO(addressCommand);
+        addressDTO.setPartyId(partyId);
+        return addressApi.updateAddressWithHttpInfo(partyId, addressId, addressDTO,xIdempotencyKey);
+    }
+
+    @Override
     public Mono<ResponseEntity<EmailContactDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         EmailContactDTO emailContactDTO = customersMapper.toEmailDTO(emailCommand);

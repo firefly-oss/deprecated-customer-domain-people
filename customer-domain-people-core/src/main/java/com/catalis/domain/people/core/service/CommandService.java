@@ -33,7 +33,7 @@ public interface CommandService {
 
     // Address operations
     Mono<SagaResult> addAddress(Long partyId, RegisterAddressCommand addressCommand);
-    Mono<Void> updateAddress(Long partyId, Long addressId, Object addressData);
+    Mono<Void> updateAddress(Long partyId, Long addressId, RegisterAddressCommand addressData);
     Mono<SagaResult> removeAddress(Long partyId, Long addressId);
 
     // Email operations

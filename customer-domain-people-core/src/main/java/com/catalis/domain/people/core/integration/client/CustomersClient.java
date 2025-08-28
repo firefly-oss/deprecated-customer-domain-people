@@ -53,6 +53,8 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<Void>> deleteAddress(Long partyId, Long addressId);
 
+    Mono<ResponseEntity<AddressDTO>> updateAddress(Long partyId, Long addressId, RegisterAddressCommand addressCommand);
+
     // Email operations
     Mono<ResponseEntity<EmailContactDTO>> createEmail(Long partyId, RegisterEmailCommand emailCommand);
 
