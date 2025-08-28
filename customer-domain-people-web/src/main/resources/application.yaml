@@ -13,6 +13,7 @@ spring:
 
 
 firefly:
+  saga.performance.enabled: true
   events:
     adapter: kafka  # or 'auto' for auto-detection
     kafka:

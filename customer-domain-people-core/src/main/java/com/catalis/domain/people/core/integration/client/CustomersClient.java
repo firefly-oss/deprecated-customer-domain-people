@@ -18,11 +18,21 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<Void>> deleteParty(Long id);
 
+    Mono<ResponseEntity<PartyDTO>> getParty(Long id);
+
     Mono<ResponseEntity<NaturalPersonDTO>> createNaturalPerson(Long partyId, RegisterNaturalPersonCommand naturalPersonCommand);
 
     Mono<ResponseEntity<Void>> deleteNaturalPerson(Long partyId, Long id);
 
+    Mono<ResponseEntity<NaturalPersonDTO>> getNaturalPerson(Long id);
+
+    Mono<ResponseEntity<NaturalPersonDTO>> updateNaturalPerson(Long partyId, Long naturalPersonId, String newName);
+
     Mono<ResponseEntity<LegalEntityDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand legalPersonCommand);
+
+    Mono<ResponseEntity<LegalEntityDTO>> getLegalEntity(Long id);
+
+    Mono<ResponseEntity<LegalEntityDTO>> updateLegalEntity(Long partyId, Long legalEntityId, String newName);
 
     Mono<ResponseEntity<PartyStatusDTO>> createPartyStatus(Long partyId, RegisterPartyStatusEntryCommand statusEntryCommand);
 
@@ -30,7 +40,7 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<PoliticallyExposedPersonDTO>> createPep(Long partyId, RegisterPepCommand pepCommand);
 
-    Mono<ResponseEntity<Void>> deleteLegalPerson(Long partyId, Long id);
+    Mono<ResponseEntity<Void>> deleteLegalEntity(Long partyId, Long id);
 
     Mono<ResponseEntity<Void>> deletePep(Long partyId, Long pepId);
 

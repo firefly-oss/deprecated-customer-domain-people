@@ -2,6 +2,8 @@ package com.catalis.domain.people.core.service;
 
 import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
 import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterEmailCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPhoneCommand;
 import com.catalis.transactionalengine.core.SagaResult;
 import reactor.core.publisher.Mono;
 
@@ -27,20 +29,20 @@ public interface CommandService {
      * @param newName the new name for the customer
      * @return a Mono signaling completion
      */
-    Mono<Void> updateName(Long partyId, String newName);
+    Mono<SagaResult> updateName(Long partyId, String newName);
 
     // Address operations
     Mono<SagaResult> addAddress(Long partyId, RegisterAddressCommand addressCommand);
     Mono<Void> updateAddress(Long partyId, Long addressId, Object addressData);
-    Mono<Void> removeAddress(Long partyId, Long addressId);
+    Mono<SagaResult> removeAddress(Long partyId, Long addressId);
 
     // Email operations
-    Mono<Void> addEmail(Long partyId, Object emailData);
-    Mono<Void> removeEmail(Long partyId, Long emailId);
+    Mono<SagaResult> addEmail(Long partyId, RegisterEmailCommand emailCommand);
+    Mono<SagaResult> removeEmail(Long partyId, Long emailId);
 
     // Phone operations
-    Mono<Void> addPhone(Long partyId, Object phoneData);
-    Mono<Void> removePhone(Long partyId, Long phoneId);
+    Mono<SagaResult> addPhone(Long partyId, RegisterPhoneCommand phoneCommand);
+    Mono<SagaResult> removePhone(Long partyId, Long phoneId);
 
     // Preferred channel operations
     Mono<Void> setPreferredChannel(Long partyId, Object channelData);

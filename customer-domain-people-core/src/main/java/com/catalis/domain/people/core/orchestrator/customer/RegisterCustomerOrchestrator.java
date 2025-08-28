@@ -26,8 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-import static com.catalis.domain.people.core.orchestrator.GlobalConstants.CTX_CUSTOMER_TYPE;
-import static com.catalis.domain.people.core.orchestrator.GlobalConstants.CTX_PARTY_ID;
+import static com.catalis.domain.people.core.orchestrator.GlobalConstants.*;
 import static com.catalis.domain.people.core.orchestrator.customer.RegisterCustomerConstants.*;
 
 /**
@@ -85,20 +84,20 @@ public class RegisterCustomerOrchestrator {
     @SagaStep(id = STEP_REGISTER_LEGAL_PERSON, compensate = COMPENSATE_REMOVE_LEGAL_PERSON, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_LEGAL_PERSON_REGISTERED)
     public Mono<Long> registerLegalPerson(RegisterLegalPersonCommand cmd, SagaContext ctx) {
-        return !ctx.variables().get(CTX_CUSTOMER_TYPE).equals(TYPE_LEGAL_PERSON)
+        return !ctx.variables().get(CTX_CUSTOMER_TYPE).equals(TYPE_LEGAL_ENTITY)
                 ? Mono.empty()
                 : customersClient.createLegalPerson((Long) ctx.variables().get(CTX_PARTY_ID), cmd)
                     .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getLegalEntityId()));
     }
 
     public Mono<Void> removeLegalPerson(Long legalPersonId, SagaContext ctx) {
-        return !ctx.variables().get(CTX_CUSTOMER_TYPE).equals(TYPE_LEGAL_PERSON)
+        return !ctx.variables().get(CTX_CUSTOMER_TYPE).equals(TYPE_LEGAL_ENTITY)
                 ? Mono.empty()
-                : customersClient.deleteLegalPerson((Long) ctx.variables().get(CTX_PARTY_ID), legalPersonId).mapNotNull(HttpEntity::getBody);
+                : customersClient.deleteLegalEntity((Long) ctx.variables().get(CTX_PARTY_ID), legalPersonId).mapNotNull(HttpEntity::getBody);
     }
 
 
-    @SagaStep(id = STEP_REGISTER_STATUS_ENTRY, compensate = COMPENSATE_REMOVE_STATUS_ENTRY, dependsOn = {STEP_REGISTER_NATURAL_PERSON, STEP_REGISTER_LEGAL_PERSON})
+    @SagaStep(id = STEP_REGISTER_STATUS_ENTRY, compensate = COMPENSATE_REMOVE_STATUS_ENTRY, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_PARTY_STATUS_REGISTERED)
     public Mono<Long> registerStatusEntry(RegisterPartyStatusEntryCommand cmd, SagaContext ctx) {
         return customersClient.createPartyStatus((Long) ctx.variables().get(CTX_PARTY_ID), cmd)
@@ -109,7 +108,7 @@ public class RegisterCustomerOrchestrator {
         return customersClient.deletePartyStatus((Long) ctx.variables().get(CTX_PARTY_ID), id).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_PEP, compensate = COMPENSATE_REMOVE_PEP, dependsOn = STEP_REGISTER_STATUS_ENTRY)
+    @SagaStep(id = STEP_REGISTER_PEP, compensate = COMPENSATE_REMOVE_PEP, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_PEP_REGISTERED)
     public Mono<Long> registerPep(RegisterPepCommand cmd, SagaContext ctx) {
         return cmd == null || !ctx.variables().get(CTX_CUSTOMER_TYPE).equals(TYPE_NATURAL_PERSON)
@@ -124,7 +123,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deletePep((Long) ctx.variables().get(CTX_PARTY_ID), pepId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_IDENTITY_DOCUMENT, compensate = COMPENSATE_REMOVE_IDENTITY_DOCUMENT, dependsOn = STEP_REGISTER_PEP)
+    @SagaStep(id = STEP_REGISTER_IDENTITY_DOCUMENT, compensate = COMPENSATE_REMOVE_IDENTITY_DOCUMENT, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_IDENTITY_DOCUMENT_REGISTERED)
     public Mono<Long> registerIdentityDocument(RegisterIdentityDocumentCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -139,7 +138,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deleteIdentityDocument((Long) ctx.variables().get(CTX_PARTY_ID), identityDocumentId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_ADDRESS, compensate = COMPENSATE_REMOVE_ADDRESS, dependsOn = STEP_REGISTER_IDENTITY_DOCUMENT)
+    @SagaStep(id = STEP_REGISTER_ADDRESS, compensate = COMPENSATE_REMOVE_ADDRESS, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_ADDRESS_REGISTERED)
     public Mono<Long> registerAddress(RegisterAddressCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -154,7 +153,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deleteAddress((Long) ctx.variables().get(CTX_PARTY_ID), addressId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_EMAIL, compensate = COMPENSATE_REMOVE_EMAIL, dependsOn = STEP_REGISTER_ADDRESS)
+    @SagaStep(id = STEP_REGISTER_EMAIL, compensate = COMPENSATE_REMOVE_EMAIL, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_EMAIL_REGISTERED)
     public Mono<Long> registerEmail(RegisterEmailCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -169,7 +168,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deleteEmail((Long) ctx.variables().get(CTX_PARTY_ID), emailId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_PHONE, compensate = COMPENSATE_REMOVE_PHONE, dependsOn = STEP_REGISTER_EMAIL)
+    @SagaStep(id = STEP_REGISTER_PHONE, compensate = COMPENSATE_REMOVE_PHONE, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_PHONE_REGISTERED)
     public Mono<Long> registerPhone(RegisterPhoneCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -184,7 +183,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deletePhone((Long) ctx.variables().get(CTX_PARTY_ID), phoneId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_ECONOMIC_ACTIVITY_LINK, compensate = COMPENSATE_REMOVE_ECONOMIC_ACTIVITY_LINK, dependsOn = {STEP_REGISTER_PHONE})
+    @SagaStep(id = STEP_REGISTER_ECONOMIC_ACTIVITY_LINK, compensate = COMPENSATE_REMOVE_ECONOMIC_ACTIVITY_LINK, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_ECONOMIC_ACTIVITY_REGISTERED)
     public Mono<Long> registerEconomicActivityLink(RegisterEconomicActivityLinkCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -199,7 +198,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deletePartyEconomicActivity((Long) ctx.variables().get(CTX_PARTY_ID), id).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_CONSENT, compensate = COMPENSATE_REMOVE_CONSENT, dependsOn = STEP_REGISTER_ECONOMIC_ACTIVITY_LINK)
+    @SagaStep(id = STEP_REGISTER_CONSENT, compensate = COMPENSATE_REMOVE_CONSENT, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_CONSENT_REGISTERED)
     public Mono<Long> registerConsent(RegisterConsentCommand cmd, SagaContext ctx) {
         return cmd == null || !ctx.variables().get(CTX_CUSTOMER_TYPE).equals(TYPE_NATURAL_PERSON)
@@ -214,7 +213,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deleteConsent((Long) ctx.variables().get(CTX_PARTY_ID), consentId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_PARTY_PROVIDER, compensate = COMPENSATE_REMOVE_PARTY_PROVIDER, dependsOn = STEP_REGISTER_CONSENT)
+    @SagaStep(id = STEP_REGISTER_PARTY_PROVIDER, compensate = COMPENSATE_REMOVE_PARTY_PROVIDER, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_PARTY_PROVIDER_REGISTERED)
     public Mono<Long> registerPartyProvider(RegisterPartyProviderCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -229,7 +228,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deletePartyProvider((Long) ctx.variables().get(CTX_PARTY_ID), partyProviderId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_PARTY_RELATIONSHIP, compensate = COMPENSATE_REMOVE_PARTY_RELATIONSHIP, dependsOn = STEP_REGISTER_PARTY_PROVIDER)
+    @SagaStep(id = STEP_REGISTER_PARTY_RELATIONSHIP, compensate = COMPENSATE_REMOVE_PARTY_RELATIONSHIP, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_PARTY_RELATIONSHIP_REGISTERED)
     public Mono<Long> registerPartyRelationship(RegisterPartyRelationshipCommand cmd, SagaContext ctx) {
         return cmd == null
@@ -244,7 +243,7 @@ public class RegisterCustomerOrchestrator {
                 : customersClient.deletePartyRelationshipWithHttpInfo((Long) ctx.variables().get(CTX_PARTY_ID), partyRelationshipId).mapNotNull(HttpEntity::getBody);
     }
 
-    @SagaStep(id = STEP_REGISTER_PARTY_GROUP_MEMBERSHIP, compensate = COMPENSATE_REMOVE_PARTY_GROUP_MEMBERSHIP, dependsOn = STEP_REGISTER_PARTY_RELATIONSHIP)
+    @SagaStep(id = STEP_REGISTER_PARTY_GROUP_MEMBERSHIP, compensate = COMPENSATE_REMOVE_PARTY_GROUP_MEMBERSHIP, dependsOn = STEP_REGISTER_PARTY)
     @StepEvent(type = EVENT_PARTY_GROUP_MEMBERSHIP_REGISTERED)
     public Mono<Long> registerPartyGroupMembership(RegisterPartyGroupMembershipCommand cmd, SagaContext ctx) {
         return cmd == null

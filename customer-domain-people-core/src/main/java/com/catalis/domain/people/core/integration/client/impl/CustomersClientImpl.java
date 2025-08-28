@@ -28,7 +28,7 @@ public class CustomersClientImpl implements CustomersClient {
 
     private final PartiesApi partyApi;
     private final NaturalPersonsApi naturalPersonApi;
-    private final LegalEntitiesApi legalPersonApi;
+    private final LegalEntitiesApi legalEntityApi;
     private final PartyStatusesApi partyStatusApi;
     private final PoliticallyExposedPersonsApi pepApi;
     private final IdentityDocumentsApi identityDocumentApi;
@@ -46,7 +46,7 @@ public class CustomersClientImpl implements CustomersClient {
     public CustomersClientImpl(ApiClient apiClient, CustomersMapper customersMapper) {
         this.partyApi = new PartiesApi(apiClient);
         this.naturalPersonApi = new NaturalPersonsApi(apiClient);
-        this.legalPersonApi = new LegalEntitiesApi(apiClient);
+        this.legalEntityApi = new LegalEntitiesApi(apiClient);
         this.partyStatusApi = new PartyStatusesApi(apiClient);
         this.pepApi = new PoliticallyExposedPersonsApi(apiClient);
         this.identityDocumentApi = new IdentityDocumentsApi(apiClient);
@@ -74,6 +74,11 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
+    public Mono<ResponseEntity<PartyDTO>> getParty(Long id) {
+        return partyApi.getPartyByIdWithHttpInfo(id);
+    }
+
+    @Override
     public Mono<ResponseEntity<NaturalPersonDTO>> createNaturalPerson(Long partyId, RegisterNaturalPersonCommand registerNaturalPersonCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         NaturalPersonDTO naturalPersonDTO = customersMapper.toNaturalPersonDTO(registerNaturalPersonCommand);
@@ -87,16 +92,44 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
+    public Mono<ResponseEntity<NaturalPersonDTO>> getNaturalPerson(Long id) {
+        return naturalPersonApi.getNaturalPersonByPartyIdWithHttpInfo(id);
+    }
+
+    @Override
+    public Mono<ResponseEntity<NaturalPersonDTO>> updateNaturalPerson(Long partyId, Long naturalPersonId, String newName) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        NaturalPersonDTO naturalPersonDTO = new NaturalPersonDTO();
+        naturalPersonDTO.setPartyId(partyId);
+        naturalPersonDTO.setGivenName(newName);
+        return naturalPersonApi.updateNaturalPersonWithHttpInfo(partyId, naturalPersonId, naturalPersonDTO, xIdempotencyKey);
+    }
+
+    @Override
     public Mono<ResponseEntity<LegalEntityDTO>> createLegalPerson(Long partyId, RegisterLegalPersonCommand registerLegalPersonCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         LegalEntityDTO legalEntityDTO = customersMapper.toLegalPersonDTO(registerLegalPersonCommand);
         legalEntityDTO.setPartyId(partyId);
-        return legalPersonApi.createLegalEntityWithHttpInfo(partyId, legalEntityDTO, xIdempotencyKey);
+        return legalEntityApi.createLegalEntityWithHttpInfo(partyId, legalEntityDTO, xIdempotencyKey);
     }
 
     @Override
-    public Mono<ResponseEntity<Void>> deleteLegalPerson(Long partyId, Long id) {
-        return legalPersonApi.deleteLegalEntityWithHttpInfo(partyId, id);
+    public Mono<ResponseEntity<Void>> deleteLegalEntity(Long partyId, Long id) {
+        return legalEntityApi.deleteLegalEntityWithHttpInfo(partyId, id);
+    }
+
+    @Override
+    public Mono<ResponseEntity<LegalEntityDTO>> getLegalEntity(Long id) {
+        return legalEntityApi.getLegalEntityByPartyIdWithHttpInfo(id);
+    }
+
+    @Override
+    public Mono<ResponseEntity<LegalEntityDTO>> updateLegalEntity(Long partyId, Long legalEntityId, String newName) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        LegalEntityDTO legalEntityDTO = new LegalEntityDTO();
+        legalEntityDTO.setPartyId(partyId);
+        legalEntityDTO.setLegalName(newName);
+        return legalEntityApi.updateLegalEntityWithHttpInfo(partyId, legalEntityId, legalEntityDTO, xIdempotencyKey);
     }
 
     @Override

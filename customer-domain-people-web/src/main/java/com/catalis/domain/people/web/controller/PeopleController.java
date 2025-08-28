@@ -5,6 +5,8 @@ import com.catalis.domain.people.core.service.QueryService;
 import com.catalis.domain.people.core.service.exceptions.DuplicateTaxIdException;
 import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
 import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterEmailCommand;
+import com.catalis.domain.people.interfaces.dto.commands.RegisterPhoneCommand;
 import com.catalis.domain.people.interfaces.dto.query.PersonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,7 +42,6 @@ public class PeopleController {
         return commandService.updateName(partyId, newName)
                 .thenReturn(ResponseEntity.ok().build());
     }
-
 
     @GetMapping("/{partyId}")
     @Operation(summary = "Get customer by id", description = "Returns a consolidated customer profile")
@@ -84,8 +85,8 @@ public class PeopleController {
     @Operation(summary = "Add customer email", description = "Add email; validate format and uniqueness within customer.")
     public Mono<ResponseEntity<Object>> addCustomerEmail(
             @PathVariable("partyId") Long partyId,
-            @RequestBody Object emailData) {
-        return commandService.addEmail(partyId, emailData)
+            @RequestBody @Valid RegisterEmailCommand emailCommand) {
+        return commandService.addEmail(partyId, emailCommand)
                 .thenReturn(ResponseEntity.ok().build());
     }
 
@@ -103,8 +104,8 @@ public class PeopleController {
     @Operation(summary = "Add customer phone", description = "Add phone in E.164 with label (mobile/landline).")
     public Mono<ResponseEntity<Object>> addCustomerPhone(
             @PathVariable("partyId") Long partyId,
-            @RequestBody Object phoneData) {
-        return commandService.addPhone(partyId, phoneData)
+            @RequestBody @Valid RegisterPhoneCommand phoneCommand) {
+        return commandService.addPhone(partyId, phoneCommand)
                 .thenReturn(ResponseEntity.ok().build());
     }
 

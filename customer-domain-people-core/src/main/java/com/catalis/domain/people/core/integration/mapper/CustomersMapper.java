@@ -12,6 +12,7 @@ import com.catalis.domain.people.interfaces.dto.commands.RegisterConsentCommand;
 import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyProviderCommand;
 import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyRelationshipCommand;
 import com.catalis.domain.people.interfaces.dto.commands.RegisterPartyGroupMembershipCommand;
+import com.catalis.domain.people.interfaces.dto.query.PartyView;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -60,6 +61,9 @@ public interface CustomersMapper {
     PartyRelationshipDTO toPartyRelationshipDTO(RegisterPartyRelationshipCommand command);
 
     PartyGroupMembershipDTO toPartyGroupMembershipDTO(RegisterPartyGroupMembershipCommand command);
+
+    @Mapping(target = "partyKind", source = "partyKind", qualifiedByName = "mapPartyKindToString")
+    PartyView toPartyView(PartyDTO partyDTO);
 
     @Named("mapPartyType")
     default PartyDTO.PartyKindEnum mapPartyType(String partyType) {
@@ -116,6 +120,13 @@ public interface CustomersMapper {
     default PhoneContactDTO.PhoneKindEnum mapPhoneType(String phoneType) {
         return Optional.ofNullable(phoneType)
                 .map(PhoneContactDTO.PhoneKindEnum::fromValue)
+                .orElse(null);
+    }
+
+    @Named("mapPartyKindToString")
+    default String mapPartyKindToString(PartyDTO.PartyKindEnum partyKind) {
+        return Optional.ofNullable(partyKind)
+                .map(PartyDTO.PartyKindEnum::getValue)
                 .orElse(null);
     }
 }

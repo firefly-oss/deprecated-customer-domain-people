@@ -1,10 +1,15 @@
 package com.catalis.domain.people.core.service.impl;
 
 import com.catalis.domain.people.core.orchestrator.address.AddAddressOrchestrator;
+import com.catalis.domain.people.core.orchestrator.address.RemoveAddressOrchestrator;
 import com.catalis.domain.people.core.orchestrator.customer.RegisterCustomerOrchestrator;
+import com.catalis.domain.people.core.orchestrator.customer.UpdateNameOrchestrator;
+import com.catalis.domain.people.core.orchestrator.email.AddEmailOrchestrator;
+import com.catalis.domain.people.core.orchestrator.email.RemoveEmailOrchestrator;
+import com.catalis.domain.people.core.orchestrator.phone.AddPhoneOrchestrator;
+import com.catalis.domain.people.core.orchestrator.phone.RemovePhoneOrchestrator;
 import com.catalis.domain.people.core.service.CommandService;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
+import com.catalis.domain.people.interfaces.dto.commands.*;
 import com.catalis.transactionalengine.core.SagaResult;
 import com.catalis.transactionalengine.engine.ExpandEach;
 import com.catalis.transactionalengine.engine.SagaEngine;
@@ -55,9 +60,15 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Mono<Void> updateName(Long partyId, String newName) {
-        // TODO: Implement name update logic
-        return Mono.empty();
+    public Mono<SagaResult> updateName(Long partyId, String newName) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateNameOrchestrator::retrievePartyId, new UpdateNameCommand(partyId, newName))
+                .forStep(UpdateNameOrchestrator::retrieveCustomer, new UpdateNameCommand(partyId, newName))
+                .forStep(UpdateNameOrchestrator::updateName, new UpdateNameCommand(partyId, newName))
+                .build();
+
+        return engine.execute(UpdateNameOrchestrator.class, inputs);
+
     }
 
     // Address operations
@@ -77,35 +88,50 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Mono<Void> removeAddress(Long partyId, Long addressId) {
-        // TODO: Implement remove address logic
-        return Mono.empty();
+    public Mono<SagaResult> removeAddress(Long partyId, Long addressId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(RemoveAddressOrchestrator::removeAddress, new RemoveAddressCommand(partyId, addressId))
+                .build();
+
+        return engine.execute(RemoveAddressOrchestrator.class, inputs);
     }
 
     // Email operations
     @Override
-    public Mono<Void> addEmail(Long partyId, Object emailData) {
-        // TODO: Implement add email logic
-        return Mono.empty();
+    public Mono<SagaResult> addEmail(Long partyId, RegisterEmailCommand emailCommand) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(AddEmailOrchestrator::registerEmail, emailCommand.withPartyId(partyId))
+                .build();
+
+        return engine.execute(AddEmailOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> removeEmail(Long partyId, Long emailId) {
-        // TODO: Implement remove email logic
-        return Mono.empty();
+    public Mono<SagaResult> removeEmail(Long partyId, Long emailId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(RemoveEmailOrchestrator::removeEmail, new RemoveEmailCommand(partyId, emailId))
+                .build();
+
+        return engine.execute(RemoveEmailOrchestrator.class, inputs);
     }
 
     // Phone operations
     @Override
-    public Mono<Void> addPhone(Long partyId, Object phoneData) {
-        // TODO: Implement add phone logic
-        return Mono.empty();
+    public Mono<SagaResult> addPhone(Long partyId, RegisterPhoneCommand phoneCommand) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(AddPhoneOrchestrator::registerPhone, phoneCommand.withPartyId(partyId))
+                .build();
+
+        return engine.execute(AddPhoneOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> removePhone(Long partyId, Long phoneId) {
-        // TODO: Implement remove phone logic
-        return Mono.empty();
+    public Mono<SagaResult> removePhone(Long partyId, Long phoneId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(RemovePhoneOrchestrator::removePhone, new RemovePhoneCommand(partyId, phoneId))
+                .build();
+
+        return engine.execute(RemovePhoneOrchestrator.class, inputs);
     }
 
     // Preferred channel operations

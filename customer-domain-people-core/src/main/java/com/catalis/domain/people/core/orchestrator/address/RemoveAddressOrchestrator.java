@@ -28,25 +28,22 @@ import static com.catalis.domain.people.core.orchestrator.address.AddressConstan
  * The orchestrator handles both natural persons and legal entities, with conditional
  * logic to process only relevant information based on the customer type.
  */
-@Saga(name = SAGA_ADD_ADDRESS_NAME)
+@Saga(name = SAGA_REMOVE_ADDRESS_NAME)
 @Service
-public class AddAddressOrchestrator {
+public class RemoveAddressOrchestrator {
 
     private final CustomersClient customersClient;
 
     @Autowired
-    public AddAddressOrchestrator(CustomersClient customersClient) {
+    public RemoveAddressOrchestrator(CustomersClient customersClient) {
         this.customersClient = customersClient;
     }
 
-    @SagaStep(id = STEP_ADD_NEW_ADDRESS)
-    @StepEvent(type = EVENT_ADDRESS_ADDED)
-    public Mono<Long> registerAddress(RegisterAddressCommand cmd, SagaContext ctx) {
+    @SagaStep(id = STEP_REMOVE_NEW_ADDRESS)
+    @StepEvent(type = EVENT_ADDRESS_REMOVED)
+    public Mono<Void> removeAddress(RemoveAddressCommand cmd) {
         return cmd == null
                 ? Mono.empty()
-                : customersClient.createAddress(cmd.partyId(), cmd)
-                .mapNotNull(r -> Objects.requireNonNull(Objects.requireNonNull(r.getBody()).getAddressId()))
-                .doOnNext(partyId -> ctx.variables().put(CTX_PARTY_ID, partyId));
+                : customersClient.deleteAddress(cmd.partyId(), cmd.addressId()).mapNotNull(HttpEntity::getBody);
     }
-
 }

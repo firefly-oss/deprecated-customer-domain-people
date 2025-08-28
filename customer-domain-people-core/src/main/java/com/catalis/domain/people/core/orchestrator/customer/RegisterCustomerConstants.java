@@ -4,10 +4,7 @@ public class RegisterCustomerConstants {
 
     // ============================== SAGA CONFIGURATION ==============================
     public static final String SAGA_REGISTER_CUSTOMER_NAME = "RegisterCustomerSaga";
-
-    // ============================== CUSTOMER TYPE CONSTANTS ==============================
-    public static final String TYPE_LEGAL_PERSON = "ORGANIZATION";
-    public static final String TYPE_NATURAL_PERSON = "INDIVIDUAL";
+    public static final String SAGA_UPDATE_LEGAL_NAME_NAME = "UpdateNameSaga";
 
     // ============================== STEP IDENTIFIERS ==============================
     public static final String STEP_REGISTER_PARTY = "registerParty";
@@ -24,6 +21,9 @@ public class RegisterCustomerConstants {
     public static final String STEP_REGISTER_PARTY_PROVIDER = "registerPartyProvider";
     public static final String STEP_REGISTER_PARTY_RELATIONSHIP = "registerPartyRelationship";
     public static final String STEP_REGISTER_PARTY_GROUP_MEMBERSHIP = "registerPartyGroupMembership";
+    public static final String STEP_RETRIEVE_PARTY_ID = "retrievePartyId";
+    public static final String STEP_RETRIEVE_CUSTOMER = "retrieveCustomer";
+    public static final String STEP_UPDATE_CUSTOMER_NAME = "updateCustomerName";
 
     // ============================== COMPENSATE METHODS ==============================
     public static final String COMPENSATE_REMOVE_PARTY = "removeParty";
@@ -56,6 +56,9 @@ public class RegisterCustomerConstants {
     public static final String EVENT_PARTY_PROVIDER_REGISTERED = "partyprovider.registered";
     public static final String EVENT_PARTY_RELATIONSHIP_REGISTERED = "partyrelationship.registered";
     public static final String EVENT_PARTY_GROUP_MEMBERSHIP_REGISTERED = "partygroupmembership.registered";
+    public static final String EVENT_PARTY_RETRIEVED = "party.retrieved";
+    public static final String EVENT_CUSTOMER_RETRIEVED = "customer.retrieved";
+    public static final String EVENT_CUSTOMER_NAME_CHANGED = "customername.changed";
 
 
 }
