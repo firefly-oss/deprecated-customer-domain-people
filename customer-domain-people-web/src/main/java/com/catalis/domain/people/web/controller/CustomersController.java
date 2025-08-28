@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
 @Tag(name = "Customers", description = "CQ queries and registration for customers")
-public class PeopleController {
+public class CustomersController {
 
     private final QueryService queryService;
     private final CommandService commandService;

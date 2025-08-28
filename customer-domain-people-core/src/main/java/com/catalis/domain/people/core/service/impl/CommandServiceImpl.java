@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 /**
  * Implementation of PersonCommandService that orchestrates customer registration
  * using the Saga pattern for distributed transaction management.
- * 
  * This service coordinates multiple registration steps through the RegisterCustomerOrchestrator,
  * ensuring data consistency across various customer-related entities including party information,
  * personal details, addresses, contacts, and relationships.
