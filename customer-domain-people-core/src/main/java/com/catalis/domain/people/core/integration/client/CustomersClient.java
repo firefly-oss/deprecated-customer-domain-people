@@ -38,6 +38,8 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<Void>> deletePartyStatus(Long partyId, Long partyStatusId);
 
+    Mono<ResponseEntity<PartyStatusDTO>> updatePartyStatus(Long partyId, RegisterPartyStatusEntryCommand statusEntryCommand);
+
     Mono<ResponseEntity<PoliticallyExposedPersonDTO>> createPep(Long partyId, RegisterPepCommand pepCommand);
 
     Mono<ResponseEntity<Void>> deleteLegalEntity(Long partyId, Long id);
@@ -60,10 +62,14 @@ public interface CustomersClient {
 
     Mono<ResponseEntity<Void>> deleteEmail(Long partyId, Long emailId);
 
+    Mono<ResponseEntity<EmailContactDTO>> updateEmail(Long partyId, Long emailId, RegisterEmailCommand emailCommand);
+
     // Phone operations
     Mono<ResponseEntity<PhoneContactDTO>> createPhone(Long partyId, RegisterPhoneCommand phoneCommand);
 
     Mono<ResponseEntity<Void>> deletePhone(Long partyId, Long phoneId);
+
+    Mono<ResponseEntity<PhoneContactDTO>> updatePhone(Long partyId, Long phoneId, RegisterPhoneCommand phoneCommand);
 
     // Economic Activity operations
     Mono<ResponseEntity<PartyEconomicActivityDTO>> createPartyEconomicActivity(Long partyId, RegisterEconomicActivityLinkCommand economicActivityLinkCommand);

@@ -1,9 +1,6 @@
 package com.catalis.domain.people.core.service;
 
-import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterEmailCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterPhoneCommand;
+import com.catalis.domain.people.interfaces.dto.commands.*;
 import com.catalis.transactionalengine.core.SagaResult;
 import reactor.core.publisher.Mono;
 
@@ -45,20 +42,20 @@ public interface CommandService {
     Mono<SagaResult> removePhone(Long partyId, Long phoneId);
 
     // Preferred channel operations
-    Mono<Void> setPreferredChannel(Long partyId, Object channelData);
+    Mono<Void> setPreferredChannel(Long partyId, PreferredChannelCommand channelData);
 
     // Authorized signatory operations
     Mono<Void> addAuthorizedSignatory(Long partyId, Object signatoryData);
     Mono<Void> removeAuthorizedSignatory(Long partyId);
 
     // Status operations
-    Mono<Void> markDormant(Long partyId);
-    Mono<Void> reactivate(Long partyId);
-    Mono<Void> markDeceased(Long partyId);
-    Mono<Void> requestClosure(Long partyId);
-    Mono<Void> confirmClosure(Long partyId);
+    Mono<SagaResult> markDormant(Long partyId);
+    Mono<SagaResult> reactivate(Long partyId);
+    Mono<SagaResult> markDeceased(Long partyId);
+    Mono<SagaResult> requestClosure(Long partyId);
+    Mono<SagaResult> confirmClosure(Long partyId);
     Mono<Void> mergeWith(Long partyId, Object mergeData);
     Mono<Void> splitFrom(Long partyId, Object splitData);
-    Mono<Void> lockProfile(Long partyId);
-    Mono<Void> unlockProfile(Long partyId);
+    Mono<SagaResult> lockProfile(Long partyId);
+    Mono<SagaResult> unlockProfile(Long partyId);
 }

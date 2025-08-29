@@ -3,10 +3,7 @@ package com.catalis.domain.people.web.controller;
 import com.catalis.domain.people.core.service.CommandService;
 import com.catalis.domain.people.core.service.QueryService;
 import com.catalis.domain.people.core.service.exceptions.DuplicateTaxIdException;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterAddressCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterCustomerCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterEmailCommand;
-import com.catalis.domain.people.interfaces.dto.commands.RegisterPhoneCommand;
+import com.catalis.domain.people.interfaces.dto.commands.*;
 import com.catalis.domain.people.interfaces.dto.query.PersonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -123,7 +120,7 @@ public class CustomersController {
     @Operation(summary = "Set preferred channel", description = "Set preferred contact channel (email/phone); one per type.")
     public Mono<ResponseEntity<Object>> setPreferredChannel(
             @PathVariable("partyId") Long partyId,
-            @RequestBody Object channelData) {
+            @RequestBody PreferredChannelCommand channelData) {
         return commandService.setPreferredChannel(partyId, channelData)
                 .thenReturn(ResponseEntity.ok().build());
     }

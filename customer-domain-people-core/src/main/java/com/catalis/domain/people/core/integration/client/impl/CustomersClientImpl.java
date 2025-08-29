@@ -146,6 +146,14 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
+    public Mono<ResponseEntity<PartyStatusDTO>> updatePartyStatus(Long partyId, RegisterPartyStatusEntryCommand statusEntryCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PartyStatusDTO partyStatusDTO = customersMapper.toPartyStatusDTO(statusEntryCommand);
+        partyStatusDTO.setPartyId(partyId);
+        return partyStatusApi.updatePartyStatusWithHttpInfo(partyId, partyStatusDTO, xIdempotencyKey);
+    }
+
+    @Override
     public Mono<ResponseEntity<PoliticallyExposedPersonDTO>> createPep(Long partyId, RegisterPepCommand pepCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         PoliticallyExposedPersonDTO politicallyExposedPersonDTO = customersMapper.toPepDTO(pepCommand);
@@ -206,6 +214,14 @@ public class CustomersClientImpl implements CustomersClient {
     }
 
     @Override
+    public Mono<ResponseEntity<EmailContactDTO>> updateEmail(Long partyId, Long emailId, RegisterEmailCommand emailCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        EmailContactDTO emailContactDTO = customersMapper.toEmailDTO(emailCommand);
+        emailContactDTO.setPartyId(partyId);
+        return emailApi.updateEmailContactWithHttpInfo(partyId, emailId, emailContactDTO, xIdempotencyKey);
+    }
+
+    @Override
     public Mono<ResponseEntity<PhoneContactDTO>> createPhone(Long partyId, RegisterPhoneCommand phoneCommand) {
         String xIdempotencyKey = UUID.randomUUID().toString();
         PhoneContactDTO phoneContactDTO = customersMapper.toPhoneDTO(phoneCommand);
@@ -216,6 +232,14 @@ public class CustomersClientImpl implements CustomersClient {
     @Override
     public Mono<ResponseEntity<Void>> deletePhone(Long partyId, Long phoneId) {
         return phoneApi.deletePhoneContactWithHttpInfo(partyId, phoneId);
+    }
+
+    @Override
+    public Mono<ResponseEntity<PhoneContactDTO>> updatePhone(Long partyId, Long phoneId, RegisterPhoneCommand phoneCommand) {
+        String xIdempotencyKey = UUID.randomUUID().toString();
+        PhoneContactDTO phoneContactDTO = customersMapper.toPhoneDTO(phoneCommand);
+        phoneContactDTO.setPartyId(partyId);
+        return phoneApi.updatePhoneContactWithHttpInfo(partyId, phoneId, phoneContactDTO, xIdempotencyKey);
     }
 
     @Override

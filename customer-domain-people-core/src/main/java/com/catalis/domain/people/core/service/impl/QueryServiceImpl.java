@@ -14,15 +14,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public Mono<PersonView> getCustomerById(Long customerId) {
-        // Return mocked data for the customer
-        PersonView mockPersonView = PersonView.builder()
-                .id(customerId)
-                .taxId("12345678901")
-                .name("Mock Customer Name")
-                .birthDate(LocalDate.of(1990, 1, 15))
-                .email("mock.customer@example.com")
-                .build();
-        
-        return Mono.just(mockPersonView);
+        // TODO: Implement mark deceased logic
+        return Mono.empty();
     }
 }

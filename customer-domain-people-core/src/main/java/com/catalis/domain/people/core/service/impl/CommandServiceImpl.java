@@ -3,12 +3,14 @@ package com.catalis.domain.people.core.service.impl;
 import com.catalis.domain.people.core.orchestrator.address.AddAddressOrchestrator;
 import com.catalis.domain.people.core.orchestrator.address.RemoveAddressOrchestrator;
 import com.catalis.domain.people.core.orchestrator.address.UpdateAddressOrchestrator;
+import com.catalis.domain.people.core.orchestrator.channel.SetPreferredChannelOrchestrator;
 import com.catalis.domain.people.core.orchestrator.customer.RegisterCustomerOrchestrator;
 import com.catalis.domain.people.core.orchestrator.customer.UpdateNameOrchestrator;
 import com.catalis.domain.people.core.orchestrator.email.AddEmailOrchestrator;
 import com.catalis.domain.people.core.orchestrator.email.RemoveEmailOrchestrator;
 import com.catalis.domain.people.core.orchestrator.phone.AddPhoneOrchestrator;
 import com.catalis.domain.people.core.orchestrator.phone.RemovePhoneOrchestrator;
+import com.catalis.domain.people.core.orchestrator.status.UpdateStatusOrchestrator;
 import com.catalis.domain.people.core.service.CommandService;
 import com.catalis.domain.people.interfaces.dto.commands.*;
 import com.catalis.transactionalengine.core.SagaResult;
@@ -18,6 +20,8 @@ import com.catalis.transactionalengine.engine.StepInputs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 /**
  * Implementation of PersonCommandService that orchestrates customer registration
@@ -140,9 +144,13 @@ public class CommandServiceImpl implements CommandService {
 
     // Preferred channel operations
     @Override
-    public Mono<Void> setPreferredChannel(Long partyId, Object channelData) {
-        // TODO: Implement set preferred channel logic
-        return Mono.empty();
+    public Mono<Void> setPreferredChannel(Long partyId, PreferredChannelCommand channelData) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(SetPreferredChannelOrchestrator::updateChannel, channelData.withPartyId(partyId))
+                .build();
+
+        return engine.execute(SetPreferredChannelOrchestrator.class, inputs)
+                .then();
     }
 
     // Authorized signatory operations
@@ -160,33 +168,73 @@ public class CommandServiceImpl implements CommandService {
 
     // Status operations
     @Override
-    public Mono<Void> markDormant(Long partyId) {
-        // TODO: Implement mark dormant logic
-        return Mono.empty();
+    public Mono<SagaResult> markDormant(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "INACTIVE",
+                                "User has been marked as dormant due to inactivity",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> reactivate(Long partyId) {
-        // TODO: Implement reactivate logic
-        return Mono.empty();
+    public Mono<SagaResult> reactivate(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "ACTIVE",
+                                "User account has been reactivated and is now fully usable.",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> markDeceased(Long partyId) {
-        // TODO: Implement mark deceased logic
-        return Mono.empty();
+    public Mono<SagaResult> markDeceased(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "CLOSED",
+                                "User account is permanently closed because the user is deceased.",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> requestClosure(Long partyId) {
-        // TODO: Implement request closure logic
-        return Mono.empty();
+    public Mono<SagaResult> requestClosure(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "PENDING",
+                                "A closure request has been submitted but is not yet confirmed.",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> confirmClosure(Long partyId) {
-        // TODO: Implement confirm closure logic
-        return Mono.empty();
+    public Mono<SagaResult> confirmClosure(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "CLOSED",
+                                "Closure has been confirmed and the account is permanently closed.",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 
     @Override
@@ -202,14 +250,30 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Mono<Void> lockProfile(Long partyId) {
-        // TODO: Implement lock profile logic
-        return Mono.empty();
+    public Mono<SagaResult> lockProfile(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "SUSPENDED",
+                                "Profile is temporarily locked, restricting access and activity.",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 
     @Override
-    public Mono<Void> unlockProfile(Long partyId) {
-        // TODO: Implement unlock profile logic
-        return Mono.empty();
+    public Mono<SagaResult> unlockProfile(Long partyId) {
+        StepInputs inputs = StepInputs.builder()
+                .forStep(UpdateStatusOrchestrator::updateStatus,
+                        new RegisterPartyStatusEntryCommand(partyId,
+                                "ACTIVE",
+                                "Lock has been removed; user profile is restored to active status.",
+                                LocalDateTime.now(),
+                                null))
+                .build();
+
+        return engine.execute(UpdateStatusOrchestrator.class, inputs);
     }
 }
