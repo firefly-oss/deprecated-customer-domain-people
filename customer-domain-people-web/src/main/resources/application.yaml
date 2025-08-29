@@ -44,7 +44,7 @@ springdoc:
     operationsSorter: method
     docExpansion: none
     filter: true
-  packages-to-scan: com.catalis.domain.people.web.controller
+  packages-to-scan: com.firefly.domain.people.web.controller
   paths-to-match: /api/**
 
 management:
@@ -78,7 +78,7 @@ spring:
 logging:
   level:
     root: INFO
-    com.catalis: DEBUG
+    com.firefly: DEBUG
     org.springframework.r2dbc: DEBUG
     org.flywaydb: DEBUG
 
@@ -91,7 +91,7 @@ spring:
 logging:
   level:
     root: INFO
-    com.catalis: DEBUG
+    com.firefly: DEBUG
     org.springframework.r2dbc: INFO
 
 springdoc:
@@ -109,7 +109,7 @@ spring:
 logging:
   level:
     root: WARN
-    com.catalis: INFO
+    com.firefly: INFO
     org.springframework: WARN
 
 springdoc:
