@@ -30,7 +30,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
         ),
         servers = {
                 @Server(
-                        url = "http://core.catalis.vc/customer-domain-people",
+                        url = "http://core.getfirefly.io/customer-domain-people",
                         description = "Development Environment"
                 ),
                 @Server(
